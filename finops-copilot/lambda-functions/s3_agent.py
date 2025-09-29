@@ -14,6 +14,15 @@ class S3CostAnalyzer:
         self.s3_client = boto3.client('s3')
         self.cloudwatch_client = boto3.client('cloudwatch')
         self.cost_explorer_client = boto3.client('ce')
+    
+    def get_bucket_list(self) -> List[str]:
+        """Get list of all S3 buckets"""
+        try:
+            response = self.s3_client.list_buckets()
+            return [bucket['Name'] for bucket in response['Buckets']]
+        except Exception as e:
+            logger.error(f"Error getting bucket list: {str(e)}")
+            return []
         
     def analyze_bucket_storage(self, bucket_names: List[str] = None) -> Dict[str, Any]:
         """Analyze S3 bucket storage metrics and costs"""

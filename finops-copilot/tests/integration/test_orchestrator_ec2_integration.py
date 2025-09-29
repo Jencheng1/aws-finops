@@ -9,9 +9,18 @@ from botocore.stub import Stubber
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+# Add the lambda-functions directory to the path
+lambda_functions_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'lambda-functions'
+)
+sys.path.insert(0, lambda_functions_path)
+
 # Import the modules
-from lambda_functions.orchestrator_agent import lambda_handler as orchestrator_handler
-from lambda_functions.ec2_agent import lambda_handler as ec2_handler
+import orchestrator_agent
+import ec2_agent
+from orchestrator_agent import lambda_handler as orchestrator_handler
+from ec2_agent import lambda_handler as ec2_handler
 
 class TestOrchestratorEC2Integration(unittest.TestCase):
     """Integration tests for the Orchestrator Agent and EC2 Agent."""

@@ -56,20 +56,23 @@ st.markdown("""
 
 class FinOpsCopilot:
     def __init__(self):
-        self.bedrock_client = None
+        self.lambda_client = None
         self.cost_explorer_client = None
         self.cloudwatch_client = None
+        self.orchestrator_function = 'finops-copilot-orchestrator-agent'
         
     def initialize_aws_clients(self):
-        """Initialize AWS clients (mock for demo)"""
+        """Initialize AWS clients"""
         try:
-            # In production, these would be real AWS clients
-            # self.bedrock_client = boto3.client('bedrock-agent-runtime')
-            # self.cost_explorer_client = boto3.client('ce')
-            # self.cloudwatch_client = boto3.client('cloudwatch')
-            pass
+            # Initialize real AWS clients for production
+            self.lambda_client = boto3.client('lambda')
+            self.cost_explorer_client = boto3.client('ce')
+            self.cloudwatch_client = boto3.client('cloudwatch')
+            st.success("AWS clients initialized successfully")
         except Exception as e:
             st.error(f"Error initializing AWS clients: {str(e)}")
+            # Fall back to mock mode
+            self.lambda_client = None
     
     def get_mock_cost_data(self):
         """Generate mock cost data for demonstration"""
@@ -128,29 +131,76 @@ class FinOpsCopilot:
             }
         ]
     
+    def invoke_orchestrator_agent(self, query, days=30, depth='standard'):
+        """Invoke the orchestrator Lambda function"""
+        try:
+            if self.lambda_client:
+                # Real AWS Lambda invocation
+                payload = {
+                    'query': query,
+                    'days': days,
+                    'depth': depth
+                }
+                
+                response = self.lambda_client.invoke(
+                    FunctionName=self.orchestrator_function,
+                    InvocationType='RequestResponse',
+                    Payload=json.dumps(payload)
+                )
+                
+                result = json.loads(response['Payload'].read())
+                if result.get('statusCode') == 200:
+                    body = json.loads(result['body'])
+                    return {
+                        'response': body.get('natural_response', 'Analysis completed'),
+                        'agents_involved': body.get('detailed_analysis', {}).get('agents_consulted', []),
+                        'data_sources': ['Cost Explorer', 'CloudWatch Metrics', 'Apptio'],
+                        'confidence': 0.9,
+                        'detailed_analysis': body.get('detailed_analysis', {}),
+                        'apptio_insights': body.get('detailed_analysis', {}).get('apptio_insights', {}),
+                        'recommendations': body.get('detailed_analysis', {}).get('recommendations', [])
+                    }
+                else:
+                    return {'error': 'Failed to get response from orchestrator'}
+            else:
+                # Mock response for demo mode
+                return self.simulate_agent_interaction(query)
+                
+        except Exception as e:
+            st.error(f"Error invoking orchestrator: {str(e)}")
+            return self.simulate_agent_interaction(query)
+    
     def simulate_agent_interaction(self, query):
-        """Simulate interaction with AWS Bedrock agents"""
-        # Mock response based on query keywords
+        """Simulate interaction with AWS Bedrock agents (fallback/demo mode)"""
+        # Enhanced mock response based on query keywords
         if 'cost' in query.lower():
             return {
-                'response': f"Based on your AWS cost analysis, I've identified several optimization opportunities. Your current monthly spend is approximately $15,000 across all services. The EC2 Agent found 15 over-provisioned instances, while the S3 Agent identified storage optimization opportunities worth $180/month.",
-                'agents_involved': ['Orchestrator Agent', 'EC2 Agent', 'S3 Agent'],
-                'data_sources': ['Cost Explorer', 'CloudWatch Metrics'],
-                'confidence': 0.92
+                'response': f"Based on your AWS cost analysis, I've identified several optimization opportunities. Your current monthly spend is approximately $15,000 across all services. The EC2 Agent found 15 over-provisioned instances, while the S3 Agent identified storage optimization opportunities worth $180/month. Apptio analysis shows your cloud spend is 12% over budget this quarter.",
+                'agents_involved': ['Orchestrator Agent', 'EC2 Agent', 'S3 Agent', 'Apptio Integration'],
+                'data_sources': ['Cost Explorer', 'CloudWatch Metrics', 'Apptio'],
+                'confidence': 0.92,
+                'apptio_insights': {
+                    'budget_variance': '+12%',
+                    'forecast_accuracy': 'High',
+                    'cost_allocation_gaps': '23% untagged resources'
+                },
+                'recommendations': self.get_mock_recommendations()[:3]
             }
         elif 'ec2' in query.lower():
             return {
                 'response': f"The EC2 Agent has analyzed your instances and found significant right-sizing opportunities. 15 instances are running at less than 20% CPU utilization and can be downsized, potentially saving $2,400/month.",
                 'agents_involved': ['EC2 Agent'],
                 'data_sources': ['CloudWatch Metrics', 'Cost Explorer'],
-                'confidence': 0.88
+                'confidence': 0.88,
+                'recommendations': [r for r in self.get_mock_recommendations() if 'EC2' in r['title']]
             }
         else:
             return {
                 'response': f"I've analyzed your query and coordinated with the relevant agents. Based on current data, I recommend reviewing your resource utilization patterns and considering the optimization suggestions in the dashboard.",
                 'agents_involved': ['Orchestrator Agent'],
                 'data_sources': ['Multiple AWS Services'],
-                'confidence': 0.75
+                'confidence': 0.75,
+                'recommendations': []
             }
 
 def main():
@@ -173,7 +223,8 @@ def main():
             ("S3 Agent", "active"),
             ("RDS Agent", "idle"),
             ("RI/SP Agent", "active"),
-            ("Tagging Agent", "idle")
+            ("Tagging Agent", "idle"),
+            ("Apptio Integration", "active")
         ]
         
         for agent, status in agents:
@@ -268,7 +319,8 @@ def main():
                 st.markdown(message["content"])
         
         # Chat input
-        if prompt := st.chat_input("Ask about your AWS costs..."):
+        prompt = st.chat_input("Ask about your AWS costs...")
+        if prompt:
             # Add user message
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
@@ -277,19 +329,39 @@ def main():
             # Get agent response
             with st.chat_message("assistant"):
                 with st.spinner("Consulting with agents..."):
-                    response_data = copilot.simulate_agent_interaction(prompt)
+                    response_data = copilot.invoke_orchestrator_agent(prompt)
                     
                     # Display response
-                    st.markdown(response_data["response"])
+                    st.markdown(response_data.get("response", "I'm processing your request..."))
                     
                     # Show agent details
                     with st.expander("Agent Details"):
-                        st.write("**Agents Involved:**", ", ".join(response_data["agents_involved"]))
-                        st.write("**Data Sources:**", ", ".join(response_data["data_sources"]))
-                        st.write("**Confidence:**", f"{response_data['confidence']:.1%}")
+                        st.write("**Agents Involved:**", ", ".join(response_data.get("agents_involved", [])))
+                        st.write("**Data Sources:**", ", ".join(response_data.get("data_sources", [])))
+                        st.write("**Confidence:**", f"{response_data.get('confidence', 0):.1%}")
+                    
+                    # Show Apptio insights if available
+                    if response_data.get("apptio_insights"):
+                        with st.expander("Apptio Insights"):
+                            insights = response_data["apptio_insights"]
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Budget Variance", insights.get('budget_variance', 'N/A'))
+                            with col2:
+                                st.metric("Forecast Accuracy", insights.get('forecast_accuracy', 'N/A'))
+                            with col3:
+                                st.metric("Untagged Resources", insights.get('cost_allocation_gaps', 'N/A'))
+                    
+                    # Show inline recommendations if available
+                    if response_data.get("recommendations"):
+                        with st.expander("Quick Recommendations"):
+                            for rec in response_data["recommendations"][:3]:
+                                st.write(f"• **{rec.get('recommendation', rec.get('title', 'N/A'))}**")
+                                if rec.get('estimated_monthly_savings'):
+                                    st.write(f"  Potential savings: ${rec['estimated_monthly_savings']:.2f}/month")
                     
                     # Add to session state
-                    st.session_state.messages.append({"role": "assistant", "content": response_data["response"]})
+                    st.session_state.messages.append({"role": "assistant", "content": response_data.get("response", "")})
     
     with tab3:
         st.header("📋 Cost Optimization Recommendations")

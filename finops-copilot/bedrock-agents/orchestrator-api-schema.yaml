@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: FinOps Orchestrator Agent API
+  description: API for orchestrating FinOps analysis and cost optimization
+  version: 1.0.0
+paths:
+  /analyze:
+    post:
+      summary: Analyze AWS costs and provide optimization recommendations
+      description: Coordinates analysis across multiple AWS services and returns comprehensive recommendations
+      operationId: analyzeAWSCosts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: User's cost analysis query
+                  example: "What are my biggest cost optimization opportunities?"
+                days:
+                  type: integer
+                  description: Number of days to analyze
+                  default: 30
+                  minimum: 1
+                  maximum: 365
+                depth:
+                  type: string
+                  description: Analysis depth level
+                  enum: [summary, standard, detailed]
+                  default: standard
+                services:
+                  type: array
+                  description: Specific services to analyze
+                  items:
+                    type: string
+                    enum: [ec2, s3, rds, all]
+                  default: [all]
+      responses:
+        200:
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  natural_response:
+                    type: string
+                    description: Natural language summary of findings
+                  detailed_analysis:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        description: High-level cost summary
+                      recommendations:
+                        type: array
+                        description: List of optimization recommendations
+                        items:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                            priority:
+                              type: string
+                              enum: [high, medium, low]
+                            estimated_monthly_savings:
+                              type: number
+                            recommendation:
+                              type: string
+                      agents_consulted:
+                        type: array
+                        description: List of agents that provided analysis
+                        items:
+                          type: string
+                  cost_impact:
+                    type: object
+                    properties:
+                      current_monthly_cost:
+                        type: number
+                      potential_monthly_savings:
+                        type: number
+                      savings_percentage:
+                        type: number
+  /delegate:
+    post:
+      summary: Delegate specific analysis to service agents
+      description: Routes specific analysis tasks to appropriate service agents
+      operationId: delegateAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - agent_type
+                - action
+              properties:
+                agent_type:
+                  type: string
+                  description: Type of agent to delegate to
+                  enum: [ec2, s3, rds, ri_sp, tagging]
+                action:
+                  type: string
+                  description: Specific action to perform
+                parameters:
+                  type: object
+                  description: Parameters for the specific action
+      responses:
+        200:
+          description: Delegation successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agent:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    description: Response from the delegated agent

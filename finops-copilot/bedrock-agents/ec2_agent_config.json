@@ -1,0 +1,23 @@
+{
+  "agentName": "FinOps-EC2-Agent",
+  "agentResourceRole": "arn:aws:iam::ACCOUNT_ID:role/BedrockAgentRole",
+  "description": "Specialized agent for analyzing EC2 instance usage and cost optimization",
+  "foundationModel": "anthropic.claude-instant-v1",
+  "instruction": "You are the EC2 Cost Optimization Agent. Your role is to analyze EC2 instance utilization, identify underutilized or idle instances, and recommend right-sizing opportunities. Focus on CPU, memory, and network utilization patterns to provide actionable cost-saving recommendations.",
+  "knowledgeBases": [],
+  "actionGroups": [
+    {
+      "actionGroupName": "EC2Actions",
+      "description": "Actions for EC2 cost analysis",
+      "actionGroupExecutor": {
+        "lambda": "arn:aws:lambda:REGION:ACCOUNT_ID:function:finops-copilot-ec2-agent"
+      },
+      "apiSchema": {
+        "s3": {
+          "s3BucketName": "finops-copilot-schemas",
+          "s3ObjectKey": "service-agent-api-schema.yaml"
+        }
+      }
+    }
+  ]
+}

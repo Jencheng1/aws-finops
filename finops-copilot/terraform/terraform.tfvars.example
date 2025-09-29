@@ -1,0 +1,42 @@
+# AWS Configuration
+aws_region = "us-east-1"
+project_name = "finops-copilot"
+environment = "production"
+
+# Lambda Configuration
+lambda_runtime = "python3.9"
+lambda_timeout = 300
+lambda_memory_size = 512
+
+# Logging
+log_retention_days = 30
+
+# Apptio MCP Configuration (update with actual values)
+apptio_mcp_endpoint = "https://mcp.your-domain.com"
+apptio_api_key = "your-apptio-api-key"
+apptio_env_id = "your-apptio-environment-id"
+
+# ECR Configuration
+create_ecr_repository = true
+ecr_image_tag_mutability = "MUTABLE"
+ecr_scan_on_push = true
+
+# App Runner Configuration
+app_runner_cpu = "1 vCPU"
+app_runner_memory = "2 GB"
+app_runner_port = "8501"
+
+# Optional: Custom domain for Streamlit app
+# custom_domain = "finops.your-domain.com"
+
+# Optional: VPC Configuration for App Runner
+# create_vpc_connector = true
+# vpc_id = "vpc-xxxxxxxxx"
+# private_subnet_ids = ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+
+# Optional: Create Bedrock agents via CloudFormation
+# create_bedrock_agents_via_cfn = true
+
+# Cost Allocation
+enable_cost_allocation_tags = true
+required_tags = ["Environment", "Owner", "Project", "CostCenter", "Application"]

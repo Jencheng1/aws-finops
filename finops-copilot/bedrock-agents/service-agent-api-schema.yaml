@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: FinOps Service Agent API
+  description: Common API schema for all service-specific FinOps agents (EC2, S3, RDS)
+  version: 1.0.0
+paths:
+  /analyze:
+    post:
+      summary: Analyze service-specific resources and costs
+      description: Performs detailed analysis of service resources, utilization, and costs
+      operationId: analyzeService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: Type of analysis to perform
+                  enum: [analyze_all, analyze_utilization, get_recommendations, analyze_storage, check_compliance]
+                  default: analyze_all
+                resource_ids:
+                  type: array
+                  description: Specific resource IDs to analyze (optional)
+                  items:
+                    type: string
+                days:
+                  type: integer
+                  description: Number of days to analyze
+                  default: 30
+                  minimum: 1
+                  maximum: 365
+                depth:
+                  type: string
+                  description: Analysis depth
+                  enum: [summary, standard, detailed]
+                  default: standard
+      responses:
+        200:
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action:
+                    type: string
+                  summary:
+                    type: object
+                    properties:
+                      resource_count:
+                        type: integer
+                      total_monthly_cost:
+                        type: number
+                      potential_monthly_savings:
+                        type: number
+                      high_priority_recommendations:
+                        type: integer
+                      total_recommendations:
+                        type: integer
+                  utilization_data:
+                    type: object
+                    description: Resource utilization metrics
+                  cost_data:
+                    type: object
+                    description: Cost breakdown and trends
+                  recommendations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        resource_id:
+                          type: string
+                        priority:
+                          type: string
+                          enum: [high, medium, low]
+                        recommendation:
+                          type: string
+                        estimated_monthly_savings:
+                          type: number
+                        estimated_savings_percent:
+                          type: number
+  /get_resource_details:
+    post:
+      summary: Get detailed information about specific resources
+      description: Retrieves detailed configuration and metadata for resources
+      operationId: getResourceDetails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resource_ids
+              properties:
+                resource_ids:
+                  type: array
+                  items:
+                    type: string
+                include_tags:
+                  type: boolean
+                  default: true
+                include_metrics:
+                  type: boolean
+                  default: false
+      responses:
+        200:
+          description: Resource details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        resource_id:
+                          type: string
+                        resource_type:
+                          type: string
+                        configuration:
+                          type: object
+                        tags:
+                          type: object
+                        metrics:
+                          type: object

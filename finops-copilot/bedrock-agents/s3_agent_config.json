@@ -1,0 +1,23 @@
+{
+  "agentName": "FinOps-S3-Agent",
+  "agentResourceRole": "arn:aws:iam::ACCOUNT_ID:role/BedrockAgentRole",
+  "description": "Specialized agent for analyzing S3 storage usage and cost optimization",
+  "foundationModel": "anthropic.claude-instant-v1",
+  "instruction": "You are the S3 Cost Optimization Agent. Your role is to analyze S3 storage usage, identify opportunities for storage class optimization, lifecycle policies, and data archival. Focus on storage patterns, access frequency, and bucket configurations to provide cost-saving recommendations.",
+  "knowledgeBases": [],
+  "actionGroups": [
+    {
+      "actionGroupName": "S3Actions",
+      "description": "Actions for S3 cost analysis",
+      "actionGroupExecutor": {
+        "lambda": "arn:aws:lambda:REGION:ACCOUNT_ID:function:finops-copilot-s3-agent"
+      },
+      "apiSchema": {
+        "s3": {
+          "s3BucketName": "finops-copilot-schemas",
+          "s3ObjectKey": "service-agent-api-schema.yaml"
+        }
+      }
+    }
+  ]
+}

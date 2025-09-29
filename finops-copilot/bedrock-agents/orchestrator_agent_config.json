@@ -1,0 +1,27 @@
+{
+  "agentName": "FinOps-Orchestrator-Agent",
+  "agentResourceRole": "arn:aws:iam::ACCOUNT_ID:role/BedrockAgentRole",
+  "description": "Orchestrator agent that coordinates all FinOps analysis tasks and delegates to specialized agents",
+  "foundationModel": "anthropic.claude-v2",
+  "instruction": "You are the FinOps Orchestrator Agent responsible for coordinating cost optimization analysis across AWS services. Your role is to understand user queries, break them down into specific tasks, and delegate to appropriate service agents (EC2, S3, RDS, RI/SP, Tagging). Synthesize responses from all agents and provide comprehensive cost optimization recommendations.",
+  "knowledgeBases": [],
+  "actionGroups": [
+    {
+      "actionGroupName": "OrchestratorActions",
+      "description": "Actions for orchestrating FinOps analysis",
+      "actionGroupExecutor": {
+        "lambda": "arn:aws:lambda:REGION:ACCOUNT_ID:function:finops-copilot-orchestrator-agent"
+      },
+      "apiSchema": {
+        "s3": {
+          "s3BucketName": "finops-copilot-schemas",
+          "s3ObjectKey": "orchestrator-api-schema.yaml"
+        }
+      }
+    }
+  ],
+  "guardrailConfiguration": {
+    "guardrailIdentifier": "finops-guardrail",
+    "guardrailVersion": "DRAFT"
+  }
+}

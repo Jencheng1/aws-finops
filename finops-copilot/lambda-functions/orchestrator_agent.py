@@ -13,7 +13,8 @@ logger.setLevel(logging.INFO)
 class FinOpsOrchestrator:
     def __init__(self):
         self.lambda_client = boto3.client('lambda')
-        self.bedrock_client = boto3.client('bedrock-agent-runtime')
+        # Note: bedrock-agent-runtime not available in all environments
+        # self.bedrock_client = boto3.client('bedrock-agent-runtime')
         
         # Agent Lambda function mappings
         self.agent_functions = {
@@ -21,7 +22,8 @@ class FinOpsOrchestrator:
             's3_agent': 'finops-copilot-s3-agent',
             'rds_agent': 'finops-copilot-rds-agent',
             'ri_sp_agent': 'finops-copilot-ri-sp-agent',
-            'tagging_agent': 'finops-copilot-tagging-agent'
+            'tagging_agent': 'finops-copilot-tagging-agent',
+            'apptio_integration': 'finops-copilot-apptio-integration'
         }
     
     def parse_user_query(self, query: str) -> Dict[str, Any]:
@@ -318,6 +320,27 @@ def lambda_handler(event, context):
         
         # Synthesize results
         synthesis = orchestrator.synthesize_results(agent_results, user_query)
+        
+        # Enrich with Apptio data if available
+        if analysis_plan.get('scope') == 'comprehensive':
+            try:
+                # Call Apptio integration to enrich the analysis
+                apptio_payload = {
+                    'action': 'enrich_analysis',
+                    'aws_cost_data': synthesis,
+                    'days': days
+                }
+                
+                logger.info("Enriching analysis with Apptio data")
+                apptio_response = orchestrator.invoke_agent('apptio_integration', apptio_payload)
+                
+                if apptio_response.get('success') and 'body' in apptio_response.get('data', {}):
+                    enriched_data = json.loads(apptio_response['data']['body'])
+                    synthesis['apptio_insights'] = enriched_data.get('apptio_insights', {})
+                    synthesis['combined_analysis'] = enriched_data.get('combined_analysis', {})
+                    
+            except Exception as e:
+                logger.warning(f"Failed to enrich with Apptio data: {str(e)}")
         
         # Generate natural language response
         natural_response = orchestrator.generate_natural_language_response(synthesis)
