@@ -1,0 +1,63 @@
+sequenceDiagram
+    participant User as User
+    participant Dashboard as Streamlit Dashboard
+    participant Orchestrator as Orchestrator Agent
+    participant ServiceAgents as Service Agents (EC2, S3, RDS)
+    participant StrategyAgents as Strategy Agents (Tagging, Forecasting)
+    participant MCPServers as MCP Servers
+    participant AWSServices as AWS Services
+    participant ExternalTools as External FinOps Tools
+    
+    %% Initial User Request
+    User->>Dashboard: Request cost optimization
+    Dashboard->>Orchestrator: Forward request
+    
+    %% Task Planning
+    Note over Orchestrator: Create optimization workflow
+    
+    %% Parallel Processing
+    par Service Agent Tasks
+        Orchestrator->>ServiceAgents: Delegate service-specific tasks
+        ServiceAgents->>MCPServers: Request service data
+        MCPServers->>AWSServices: Retrieve AWS cost & usage data
+        AWSServices-->>MCPServers: Return raw data
+        MCPServers-->>ServiceAgents: Return processed data
+        Note over ServiceAgents: Analyze service-specific data
+    and Strategy Agent Tasks
+        Orchestrator->>StrategyAgents: Delegate strategy-specific tasks
+        StrategyAgents->>MCPServers: Request cross-service data
+        MCPServers->>AWSServices: Retrieve AWS resource data
+        AWSServices-->>MCPServers: Return raw data
+        MCPServers->>ExternalTools: Request additional insights
+        ExternalTools-->>MCPServers: Return optimization data
+        MCPServers-->>StrategyAgents: Return processed data
+        Note over StrategyAgents: Analyze cross-service patterns
+    end
+    
+    %% Agent Communication
+    ServiceAgents->>ServiceAgents: Share insights via A2A
+    ServiceAgents->>StrategyAgents: Share service-specific findings
+    StrategyAgents->>ServiceAgents: Share strategic context
+    
+    %% Results Aggregation
+    ServiceAgents-->>Orchestrator: Return service recommendations
+    StrategyAgents-->>Orchestrator: Return strategy recommendations
+    
+    %% Result Processing
+    Note over Orchestrator: Aggregate & prioritize recommendations
+    
+    %% Response to User
+    Orchestrator-->>Dashboard: Return optimization insights
+    Dashboard-->>User: Present visualizations & recommendations
+    
+    %% User Action
+    User->>Dashboard: Select recommendation to implement
+    Dashboard->>Orchestrator: Request implementation plan
+    
+    %% Implementation Planning
+    Orchestrator->>ServiceAgents: Generate implementation steps
+    ServiceAgents-->>Orchestrator: Return implementation plan
+    
+    %% Final Response
+    Orchestrator-->>Dashboard: Return detailed implementation plan
+    Dashboard-->>User: Present implementation steps

@@ -1,0 +1,79 @@
+flowchart TD
+    %% Main Components
+    Dashboard[Streamlit Dashboard]
+    Orchestrator[Orchestrator Agent]
+    EC2Agent[EC2 Agent]
+    S3Agent[S3 Agent]
+    RDSAgent[RDS Agent]
+    TaggingAgent[Tagging Agent]
+    ForecastingAgent[Forecasting Agent]
+    CostMCP[Cost Explorer MCP]
+    CloudWatchMCP[CloudWatch MCP]
+    TaggingMCP[Tagging MCP]
+    A2AServer[A2A Communication Server]
+    
+    %% Dashboard Interactions
+    Dashboard -- "1. User requests" --> Orchestrator
+    Orchestrator -- "10. Optimization results" --> Dashboard
+    
+    %% Orchestrator Interactions
+    Orchestrator -- "2a. EC2 analysis task" --> EC2Agent
+    Orchestrator -- "2b. S3 analysis task" --> S3Agent
+    Orchestrator -- "2c. RDS analysis task" --> RDSAgent
+    Orchestrator -- "2d. Tagging analysis task" --> TaggingAgent
+    Orchestrator -- "2e. Forecasting task" --> ForecastingAgent
+    
+    %% Agent to MCP Interactions
+    EC2Agent -- "3a. Request cost data" --> CostMCP
+    EC2Agent -- "3b. Request metrics" --> CloudWatchMCP
+    S3Agent -- "4a. Request cost data" --> CostMCP
+    S3Agent -- "4b. Request metrics" --> CloudWatchMCP
+    RDSAgent -- "5a. Request cost data" --> CostMCP
+    RDSAgent -- "5b. Request metrics" --> CloudWatchMCP
+    TaggingAgent -- "6. Request tagging data" --> TaggingMCP
+    ForecastingAgent -- "7. Request historical cost data" --> CostMCP
+    
+    %% MCP to Agent Interactions
+    CostMCP -- "3c. Cost data response" --> EC2Agent
+    CloudWatchMCP -- "3d. Metrics response" --> EC2Agent
+    CostMCP -- "4c. Cost data response" --> S3Agent
+    CloudWatchMCP -- "4d. Metrics response" --> S3Agent
+    CostMCP -- "5c. Cost data response" --> RDSAgent
+    CloudWatchMCP -- "5d. Metrics response" --> RDSAgent
+    TaggingMCP -- "6b. Tagging data response" --> TaggingAgent
+    CostMCP -- "7b. Historical cost data response" --> ForecastingAgent
+    
+    %% A2A Communication
+    EC2Agent -- "8a. Share insights" --> A2AServer
+    S3Agent -- "8b. Share insights" --> A2AServer
+    RDSAgent -- "8c. Share insights" --> A2AServer
+    TaggingAgent -- "8d. Share insights" --> A2AServer
+    ForecastingAgent -- "8e. Share insights" --> A2AServer
+    A2AServer -- "8f. Distribute insights" --> EC2Agent
+    A2AServer -- "8g. Distribute insights" --> S3Agent
+    A2AServer -- "8h. Distribute insights" --> RDSAgent
+    A2AServer -- "8i. Distribute insights" --> TaggingAgent
+    A2AServer -- "8j. Distribute insights" --> ForecastingAgent
+    
+    %% Results to Orchestrator
+    EC2Agent -- "9a. EC2 recommendations" --> Orchestrator
+    S3Agent -- "9b. S3 recommendations" --> Orchestrator
+    RDSAgent -- "9c. RDS recommendations" --> Orchestrator
+    TaggingAgent -- "9d. Tagging recommendations" --> Orchestrator
+    ForecastingAgent -- "9e. Cost forecasts" --> Orchestrator
+    
+    %% Style definitions
+    classDef dashboard fill:#6BB1CC,stroke:#333,stroke-width:1px,color:#fff
+    classDef orchestrator fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef serviceAgents fill:#527FFF,stroke:#333,stroke-width:1px,color:#fff
+    classDef strategyAgents fill:#527FFF,stroke:#333,stroke-width:1px,color:#fff
+    classDef mcpServers fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef communication fill:#B04759,stroke:#333,stroke-width:1px,color:#fff
+    
+    %% Apply styles
+    class Dashboard dashboard
+    class Orchestrator orchestrator
+    class EC2Agent,S3Agent,RDSAgent serviceAgents
+    class TaggingAgent,ForecastingAgent strategyAgents
+    class CostMCP,CloudWatchMCP,TaggingMCP mcpServers
+    class A2AServer communication

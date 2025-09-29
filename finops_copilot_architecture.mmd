@@ -1,0 +1,36 @@
+graph TD
+    %% Level 1: User
+    A[User Interface]
+    
+    %% Level 2: Orchestrator
+    B[AWS Bedrock<br/>Orchestrator Agent]
+    
+    %% Level 3: Agents
+    C1[Service Agents<br/>EC2, S3, RDS]
+    C2[Strategy Agents<br/>Cost Optimization]
+    
+    %% Level 4: AWS Services
+    D[AWS Services & MCP<br/>Cost Explorer<br/>CloudWatch<br/>Tagging]
+    
+    %% Clean flow with minimal arrows
+    A -->|Request| B
+    B --> C1
+    B --> C2
+    C1 --> D
+    C2 --> D
+    D -.-> C1
+    D -.-> C2
+    C1 -.-> B
+    C2 -.-> B
+    B -.->|Results| A
+    
+    %% Styling
+    classDef userClass fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef orchestratorClass fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef agentClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef awsClass fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    
+    class A userClass
+    class B orchestratorClass
+    class C1,C2 agentClass
+    class D awsClass

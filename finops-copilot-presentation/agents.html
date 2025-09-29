@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #232F3E;
+        color: #FFFFFF;
+        font-family: 'Amazon Ember', Arial, sans-serif;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #FFFFFF;
+      }
+      .content {
+        display: flex;
+        flex: 1;
+      }
+      .left-column {
+        flex: 1;
+        padding-right: 40px;
+        display: grid;
+        grid-template-rows: auto auto auto;
+        gap: 15px;
+      }
+      .right-column {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .agent-category {
+        margin-bottom: 10px;
+      }
+      .category-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #FF9900;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+      .category-icon {
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+        background-color: #0066CC;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .agent-list {
+        margin-left: 55px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .agent-item {
+        display: flex;
+        align-items: flex-start;
+      }
+      .agent-icon {
+        width: 30px;
+        height: 30px;
+        background-color: rgba(255, 153, 0, 0.2);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .agent-details {
+        flex: 1;
+      }
+      .agent-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .agent-description {
+        font-size: 16px;
+        line-height: 1.3;
+        opacity: 0.9;
+      }
+      .image-container {
+        width: 450px;
+        height: 450px;
+      }
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="header">
+        <h1 class="title">Specialized Agents</h1>
+      </div>
+      
+      <div class="content">
+        <div class="left-column">
+          <div class="agent-category">
+            <div class="category-title">
+              <div class="category-icon"><i class="fas fa-sitemap"></i></div>
+              Orchestrator Agent
+            </div>
+            <div class="agent-list">
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-brain"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">Central Coordinator</div>
+                  <div class="agent-description">Manages workflow between specialized agents and prioritizes optimization tasks based on potential savings.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="agent-category">
+            <div class="category-title">
+              <div class="category-icon"><i class="fas fa-server"></i></div>
+              Service Agents
+            </div>
+            <div class="agent-list">
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-desktop"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">EC2 Agent</div>
+                  <div class="agent-description">Analyzes compute usage patterns and recommends right-sizing and reserved instances.</div>
+                </div>
+              </div>
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-database"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">S3 Agent</div>
+                  <div class="agent-description">Optimizes storage costs through lifecycle policies and storage class analysis.</div>
+                </div>
+              </div>
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-table"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">RDS Agent</div>
+                  <div class="agent-description">Monitors database metrics and suggests instance sizing and storage optimization.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="agent-category">
+            <div class="category-title">
+              <div class="category-icon"><i class="fas fa-chess"></i></div>
+              Strategy Agents
+            </div>
+            <div class="agent-list">
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-tags"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">Tagging Agent</div>
+                  <div class="agent-description">Enforces tagging policies and improves cost allocation accuracy.</div>
+                </div>
+              </div>
+              <div class="agent-item">
+                <div class="agent-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="agent-details">
+                  <div class="agent-name">Forecasting Agent</div>
+                  <div class="agent-description">Predicts future costs based on historical trends and planned changes.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right-column">
+          <div class="image-container">
+            <img src="/home/ubuntu/upload/search_images/XqAXpc4MTUnc.jpg" alt="AWS Bedrock Agents" width="450" height="450">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #232F3E;
+        color: #FFFFFF;
+        font-family: 'Amazon Ember', Arial, sans-serif;
+        padding: 40px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #FFFFFF;
+      }
+      .content {
+        display: flex;
+        height: calc(100% - 100px);
+      }
+      .left-column {
+        flex: 1;
+        padding-right: 40px;
+      }
+      .right-column {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .challenge-item {
+        margin-bottom: 25px;
+        display: flex;
+        align-items: flex-start;
+      }
+      .challenge-icon {
+        background-color: #FF9900;
+        color: #232F3E;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .challenge-text {
+        font-size: 20px;
+        line-height: 1.5;
+      }
+      .challenge-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #FF9900;
+      }
+      .image-container {
+        width: 500px;
+        height: 500px;
+      }
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="header">
+        <h1 class="title">The FinOps Challenge</h1>
+      </div>
+      
+      <div class="content">
+        <div class="left-column">
+          <div class="challenge-item">
+            <div class="challenge-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div>
+              <div class="challenge-title">Complex Billing Structures</div>
+              <div class="challenge-text">AWS offers 200+ services with complex pricing models, making it difficult to track and forecast costs accurately.</div>
+            </div>
+          </div>
+          
+          <div class="challenge-item">
+            <div class="challenge-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+              <div class="challenge-title">Unexpected Cost Spikes</div>
+              <div class="challenge-text">Dynamic resource usage and auto-scaling can lead to unexpected cost increases that are difficult to detect in real-time.</div>
+            </div>
+          </div>
+          
+          <div class="challenge-item">
+            <div class="challenge-icon">
+              <i class="fas fa-server"></i>
+            </div>
+            <div>
+              <div class="challenge-title">Resource Waste</div>
+              <div class="challenge-text">Idle or oversized resources account for up to 35% of cloud spend, but identifying them requires deep technical analysis.</div>
+            </div>
+          </div>
+          
+          <div class="challenge-item">
+            <div class="challenge-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <div>
+              <div class="challenge-title">Poor Cost Allocation</div>
+              <div class="challenge-text">Inconsistent tagging and cost allocation practices make it difficult to attribute costs to specific teams or projects.</div>
+            </div>
+          </div>
+          
+          <div class="challenge-item">
+            <div class="challenge-icon">
+              <i class="fas fa-tools"></i>
+            </div>
+            <div>
+              <div class="challenge-title">Tool Fragmentation</div>
+              <div class="challenge-text">Multiple disconnected cost management tools create silos of information and require specialized expertise.</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right-column">
+          <div class="image-container">
+            <img src="/home/ubuntu/finops-copilot-presentation/images/cloud_cost_challenges.png" alt="Cloud Cost Management Challenges" width="500" height="500">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

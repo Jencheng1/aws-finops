@@ -1,0 +1,51 @@
+graph TD
+    %% Define the main components with AWS icons
+    User([User])
+    WebApp[Streamlit Web Interface]
+    APIGateway[Amazon API Gateway]
+    BedrockOrchestrator[Amazon Bedrock Orchestrator]
+    BedrockAgents[AWS Bedrock Agents]
+    MCPLambdas[AWS Lambda MCP Servers]
+    CostExplorer[AWS Cost Explorer]
+    CloudWatch[Amazon CloudWatch]
+    TrustedAdvisor[AWS Trusted Advisor]
+    ExternalAPIs[External APIs]
+    S3[Amazon S3]
+    Cognito[Amazon Cognito]
+    
+    %% Define the connections
+    User --> WebApp
+    WebApp --> APIGateway
+    APIGateway --> BedrockOrchestrator
+    BedrockOrchestrator --> BedrockAgents
+    BedrockAgents --> MCPLambdas
+    MCPLambdas --> CostExplorer
+    MCPLambdas --> CloudWatch
+    MCPLambdas --> TrustedAdvisor
+    MCPLambdas --> ExternalAPIs
+    BedrockAgents --> S3
+    Cognito --> WebApp
+    
+    %% Define styles
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px
+    classDef webapp fill:#bbf,stroke:#333,stroke-width:2px
+    classDef aws fill:#FF9900,stroke:#333,stroke-width:2px,color:#000
+    classDef external fill:#ddd,stroke:#333,stroke-width:2px
+    
+    class User user
+    class WebApp webapp
+    class APIGateway,BedrockOrchestrator,BedrockAgents,MCPLambdas,CostExplorer,CloudWatch,TrustedAdvisor,S3,Cognito aws
+    class ExternalAPIs external
+    
+    %% Add labels
+    linkStyle 0 stroke:#333,stroke-width:2px,color:#333,label:"Queries"
+    linkStyle 1 stroke:#333,stroke-width:2px,color:#333,label:"API Calls"
+    linkStyle 2 stroke:#333,stroke-width:2px,color:#333,label:"Invokes"
+    linkStyle 3 stroke:#333,stroke-width:2px,color:#333,label:"Delegates"
+    linkStyle 4 stroke:#333,stroke-width:2px,color:#333,label:"Invokes"
+    linkStyle 5 stroke:#333,stroke-width:2px,color:#333,label:"Queries"
+    linkStyle 6 stroke:#333,stroke-width:2px,color:#333,label:"Queries"
+    linkStyle 7 stroke:#333,stroke-width:2px,color:#333,label:"Queries"
+    linkStyle 8 stroke:#333,stroke-width:2px,color:#333,label:"API Calls"
+    linkStyle 9 stroke:#333,stroke-width:2px,color:#333,label:"Stores"
+    linkStyle 10 stroke:#333,stroke-width:2px,color:#333,label:"Authenticates"

@@ -1,0 +1,12 @@
+{
+  "StackName": "finops-copilot",
+  "Region": "us-east-1",
+  "Parameters": {
+    "Environment": "dev",
+    "ApiStageName": "v1",
+    "DashboardName": "FinOpsCopilot",
+    "CloudHealthApiKeySecretName": "cloudhealth-api-key",
+    "CloudabilityApiKeySecretName": "cloudability-api-key",
+    "SpotioApiKeySecretName": "spotio-api-key"
+  }
+}

@@ -1,0 +1,91 @@
+```mermaid
+graph TD
+    subgraph User Interface
+        A[Streamlit Frontend]
+    end
+
+    subgraph Agent Layer
+        B(Orchestrator Agent<br/>AWS Bedrock)
+        C1[EC2 Agent]
+        C2[S3 Agent]
+        C3[RDS Agent]
+        C4[RI/SP Agent]
+        C5[Tagging Agent]
+    end
+
+    subgraph AWS Services & MCP
+        D1[Cost Explorer MCP]
+        D2[CloudWatch MCP]
+        D3[Tagging MCP]
+        E1[AWS Cost Explorer]
+        E2[AWS CloudWatch]
+        E3[AWS Resource Groups<br/>Tagging API]
+    end
+
+    subgraph Serverless Functions
+        F1[Lambda for EC2]
+        F2[Lambda for S3]
+        F3[Lambda for RDS]
+        F4[Lambda for RI/SP]
+        F5[Lambda for Tagging]
+    end
+
+    subgraph External Tools
+        G[Apito API]
+    end
+
+    A --> B
+    B --> C1
+    B --> C2
+    B --> C3
+    B --> C4
+    B --> C5
+
+    C1 --> F1
+    C2 --> F2
+    C3 --> F3
+    C4 --> F4
+    C5 --> F5
+
+    F1 --> D1
+    F1 --> D2
+    F2 --> D1
+    F3 --> D1
+    F3 --> D2
+    F4 --> D1
+    F5 --> D3
+
+    D1 --> E1
+    D2 --> E2
+    D3 --> E3
+
+    F1 --> G
+
+    E1 -.-> D1
+    E2 -.-> D2
+    E3 -.-> D3
+
+    D1 -.-> F1
+    D2 -.-> F1
+    D1 -.-> F2
+    D1 -.-> F3
+    D2 -.-> F3
+    D1 -.-> F4
+    D3 -.-> F5
+
+    F1 -.-> C1
+    F2 -.-> C2
+    F3 -.-> C3
+    F4 -.-> C4
+    F5 -.-> C5
+
+    G -.-> F1
+
+    C1 -.-> B
+    C2 -.-> B
+    C3 -.-> B
+    C4 -.-> B
+    C5 -.-> B
+
+    B -.-> A
+```

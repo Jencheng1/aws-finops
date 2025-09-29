@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #232F3E;
+        color: #FFFFFF;
+        font-family: 'Amazon Ember', Arial, sans-serif;
+        padding: 40px;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #FFFFFF;
+      }
+      .content {
+        display: flex;
+        justify-content: space-evenly;
+      }
+      .left-column {
+        flex: 1;
+        padding-right: 30px;
+      }
+      .right-column {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .benefit-item {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+      }
+      .benefit-icon {
+        background-color: #FF9900;
+        color: #232F3E;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .benefit-text {
+        font-size: 16px;
+        line-height: 1.4;
+      }
+      .benefit-title {
+        font-weight: bold;
+        margin-bottom: 3px;
+        color: #FF9900;
+        font-size: 18px;
+      }
+      .image-container {
+        width: 450px;
+        height: 450px;
+      }
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+      .metrics-container {
+        margin-top: 20px;
+      }
+      .metrics-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+      }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .metric-box {
+        background-color: rgba(0, 102, 204, 0.2);
+        border-left: 4px solid #0066CC;
+        padding: 12px;
+        border-radius: 0 5px 5px 0;
+      }
+      .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #FF9900;
+        margin-bottom: 3px;
+      }
+      .metric-label {
+        font-size: 14px;
+        color: #FFFFFF;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="header">
+        <h1 class="title">Benefits & ROI</h1>
+      </div>
+      
+      <div class="content">
+        <div class="left-column">
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div>
+              <div class="benefit-title">Significant Cost Reduction</div>
+              <div class="benefit-text">Identify and eliminate waste across AWS services, with typical savings of 20-35% on monthly cloud spend.</div>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div>
+              <div class="benefit-title">Intelligent Automation</div>
+              <div class="benefit-text">AI agents continuously monitor and optimize resources without manual intervention.</div>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+              <div class="benefit-title">Improved Forecasting</div>
+              <div class="benefit-text">Accurate cost predictions and trend analysis help with budgeting and planning.</div>
+            </div>
+          </div>
+          
+          <div class="metrics-container">
+            <div class="metrics-title">Key Performance Metrics</div>
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="metric-value">3-6 Months</div>
+                <div class="metric-label">Average ROI Timeframe</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">90%+</div>
+                <div class="metric-label">Tagging Compliance</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">40%</div>
+                <div class="metric-label">Reduction in Idle Resources</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-value">75%</div>
+                <div class="metric-label">Time Saved on Analysis</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right-column">
+          <div class="image-container">
+            <img src="/home/ubuntu/finops-copilot-presentation/images/cost_savings.png" alt="Cost Savings and ROI" width="450" height="450">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

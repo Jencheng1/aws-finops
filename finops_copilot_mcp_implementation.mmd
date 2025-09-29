@@ -1,0 +1,96 @@
+classDiagram
+    class MCPServer {
+        <<interface>>
+        +run(transport)
+        +tool()
+    }
+    
+    class CloudabilityMCPServer {
+        -CLOUDABILITY_API_BASE: string
+        -CLOUDABILITY_API_KEY: string
+        -CLOUDABILITY_REGION: string
+        +get_cost_data(start_date, end_date, granularity)
+        +get_usage_data(start_date, end_date, service)
+        +get_tagging_compliance()
+        +get_anomalies(start_date, end_date)
+        +get_cost_by_service(start_date, end_date)
+        +get_cost_by_account(start_date, end_date)
+        +get_cost_by_tag(start_date, end_date, tag_key)
+        +get_cost_forecast(months_ahead)
+        +get_optimization_recommendations()
+        -make_cloudability_request(endpoint, method, params, data)
+        -format_cost_data(data)
+        -format_usage_data(data)
+        -format_tagging_compliance(data)
+        -format_anomalies(data)
+    }
+    
+    class ApptioMCPServer {
+        -APPTIO_API_BASE: string
+        -APPTIO_API_KEY: string
+        -APPTIO_ENV_ID: string
+        +get_cost_data(start_date, end_date)
+        +get_budget_data(fiscal_year, fiscal_period)
+        +get_forecast_data(months_ahead)
+        +get_optimization_recommendations()
+        +get_cost_by_service(start_date, end_date)
+        +get_cost_by_account(start_date, end_date)
+        +get_cost_by_tag(start_date, end_date, tag_key)
+        +get_budget_vs_actual(fiscal_year)
+        -make_apptio_request(endpoint, method, params, data)
+        -format_cost_data(data)
+        -format_budget_data(data)
+        -format_forecast_data(data)
+        -format_optimization_recommendations(data)
+    }
+    
+    class AWSCostExplorerMCPServer {
+        -ce_client: boto3.client
+        -savingsplans_client: boto3.client
+        -compute_optimizer_client: boto3.client
+        +get_cost_usage(start_date, end_date, granularity, group_by)
+        +get_savings_plans_recommendations(lookback_period, payment_option)
+        +get_ri_recommendations()
+        +get_cost_anomalies(start_date, end_date)
+        +get_cost_forecast(start_date, end_date)
+        +get_dimension_values(dimension)
+        +get_cost_by_service(start_date, end_date)
+        +get_cost_by_account(start_date, end_date)
+        +get_cost_by_region(start_date, end_date)
+        +get_savings_plans_utilization(start_date, end_date)
+        -format_cost_usage_data(data)
+        -format_savings_plans_recommendations(data)
+        -format_ri_recommendations(data)
+        -format_cost_anomalies(data)
+        -format_cost_forecast(data)
+        -format_dimension_values(data)
+    }
+    
+    class AWSResourceIntelligenceMCPServer {
+        -ec2_client: boto3.client
+        -rds_client: boto3.client
+        -cloudwatch_client: boto3.client
+        -compute_optimizer_client: boto3.client
+        -trusted_advisor_client: boto3.client
+        -resource_groups_tagging_client: boto3.client
+        +get_idle_ec2_instances(days, cpu_threshold)
+        +get_idle_ebs_volumes()
+        +get_idle_rds_instances(days, cpu_threshold, connection_threshold)
+        +get_rightsizing_recommendations()
+        +get_trusted_advisor_recommendations()
+        +get_untagged_resources()
+        +get_resource_count_by_type()
+        +get_resource_count_by_region()
+        +get_resource_count_by_tag(tag_key)
+        -format_idle_ec2_instances(instances)
+        -format_idle_ebs_volumes(volumes)
+        -format_idle_rds_instances(instances)
+        -format_rightsizing_recommendations(recommendations)
+        -format_trusted_advisor_recommendations(recommendations)
+        -format_untagged_resources(resources)
+    }
+    
+    MCPServer <|-- CloudabilityMCPServer
+    MCPServer <|-- ApptioMCPServer
+    MCPServer <|-- AWSCostExplorerMCPServer
+    MCPServer <|-- AWSResourceIntelligenceMCPServer

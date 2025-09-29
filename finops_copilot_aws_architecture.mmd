@@ -1,0 +1,34 @@
+flowchart TD
+    %% Define the main components with AWS icons
+    User([fa:fa-user User]) --> |"Queries"| WebApp["fa:fa-window-maximize Streamlit\nWeb Interface"]
+    WebApp --> |"API Calls"| APIGateway["fa:fa-exchange-alt Amazon API Gateway"]
+    APIGateway --> |"Invokes"| BedrockOrchestrator["fa:fa-brain Amazon Bedrock\nOrchestrator Agent"]
+    
+    %% Define the AWS Bedrock Agents
+    BedrockOrchestrator --> |"Delegates"| BedrockAgents["fa:fa-robot AWS Bedrock Agents"]
+    
+    %% Define the Lambda functions for MCP servers
+    BedrockAgents --> |"Invokes"| MCPLambdas["fa:fa-code AWS Lambda\nMCP Servers"]
+    
+    %% Define the data sources
+    MCPLambdas --> |"Queries"| CostExplorer["fa:fa-chart-line AWS Cost Explorer"]
+    MCPLambdas --> |"Queries"| CloudWatch["fa:fa-tachometer-alt Amazon CloudWatch"]
+    MCPLambdas --> |"Queries"| TrustedAdvisor["fa:fa-check-circle AWS Trusted Advisor"]
+    MCPLambdas --> |"API Calls"| ExternalAPIs["fa:fa-cloud External APIs\n(Cloudability, Apptio)"]
+    
+    %% Define the data storage
+    BedrockAgents --> |"Stores"| S3["fa:fa-database Amazon S3\nData Lake"]
+    
+    %% Define the authentication
+    Cognito["fa:fa-lock Amazon Cognito"] --> |"Authenticates"| WebApp
+    
+    %% Styling
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px
+    classDef webapp fill:#bbf,stroke:#333,stroke-width:2px
+    classDef aws fill:#FF9900,stroke:#333,stroke-width:2px,color:#000
+    classDef external fill:#ddd,stroke:#333,stroke-width:2px
+    
+    class User user
+    class WebApp webapp
+    class APIGateway,BedrockOrchestrator,BedrockAgents,MCPLambdas,CostExplorer,CloudWatch,TrustedAdvisor,S3,Cognito aws
+    class ExternalAPIs external

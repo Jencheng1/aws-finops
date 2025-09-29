@@ -1,0 +1,951 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'FinOps Copilot - AWS Bedrock Multi-Agent System for Cost Optimization'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - prod
+    Description: The deployment environment
+
+  ApiStageName:
+    Type: String
+    Default: v1
+    Description: The API Gateway stage name
+
+  DashboardName:
+    Type: String
+    Default: FinOpsCopilot
+    Description: The name of the CloudWatch dashboard
+
+  CloudHealthApiKeySecretName:
+    Type: String
+    Default: cloudhealth-api-key
+    Description: The name of the secret containing the CloudHealth API key
+
+  CloudabilityApiKeySecretName:
+    Type: String
+    Default: cloudability-api-key
+    Description: The name of the secret containing the Cloudability API key
+
+  SpotioApiKeySecretName:
+    Type: String
+    Default: spotio-api-key
+    Description: The name of the secret containing the Spot.io API key
+
+Resources:
+  # IAM Roles
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: FinOpsCopilotLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ce:*
+                  - cloudwatch:*
+                  - ec2:Describe*
+                  - rds:Describe*
+                  - s3:List*
+                  - s3:Get*
+                  - dynamodb:*
+                  - secretsmanager:GetSecretValue
+                  - bedrock:*
+                Resource: '*'
+
+  BedrockAgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: FinOpsCopilotBedrockAgentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: '*'
+
+  AppRunnerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: build.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+
+  # DynamoDB Tables
+  StateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub finops-copilot-state-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  CacheTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub finops-copilot-cache-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: cacheKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: cacheKey
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expiration
+        Enabled: true
+
+  MessageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub finops-copilot-messages-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: messageId
+          AttributeType: S
+        - AttributeName: topic
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: messageId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: TopicTimestampIndex
+          KeySchema:
+            - AttributeName: topic
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  SubscriptionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub finops-copilot-subscriptions-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: subscriptionId
+          AttributeType: S
+        - AttributeName: subscriber
+          AttributeType: S
+      KeySchema:
+        - AttributeName: subscriptionId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: SubscriberIndex
+          KeySchema:
+            - AttributeName: subscriber
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # S3 Buckets
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub finops-copilot-assets-${Environment}-${AWS::AccountId}
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # Lambda Functions
+  OrchestratorFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-orchestrator-${Environment}
+      Handler: orchestrator_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          STATE_TABLE: !Ref StateTable
+          CACHE_TABLE: !Ref CacheTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/orchestrator_agent.zip
+
+  EC2AgentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-ec2-agent-${Environment}
+      Handler: ec2_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/ec2_agent.zip
+
+  S3AgentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-s3-agent-${Environment}
+      Handler: s3_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/s3_agent.zip
+
+  RDSAgentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-rds-agent-${Environment}
+      Handler: rds_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/rds_agent.zip
+
+  TaggingAgentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-tagging-agent-${Environment}
+      Handler: tagging_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/tagging_agent.zip
+
+  ForecastingAgentFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-forecasting-agent-${Environment}
+      Handler: forecasting_agent.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/forecasting_agent.zip
+
+  CostExplorerMCPFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-cost-explorer-mcp-${Environment}
+      Handler: cost_explorer_mcp.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+          CLOUDHEALTH_SECRET_NAME: !Ref CloudHealthApiKeySecretName
+          CLOUDABILITY_SECRET_NAME: !Ref CloudabilityApiKeySecretName
+          SPOTIO_SECRET_NAME: !Ref SpotioApiKeySecretName
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/cost_explorer_mcp.zip
+
+  CloudWatchMCPFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-cloudwatch-mcp-${Environment}
+      Handler: cloudwatch_mcp.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/cloudwatch_mcp.zip
+
+  TaggingMCPFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-tagging-mcp-${Environment}
+      Handler: tagging_mcp.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          CACHE_TABLE: !Ref CacheTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/tagging_mcp.zip
+
+  A2AServerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub finops-copilot-a2a-server-${Environment}
+      Handler: a2a_server.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          MESSAGE_TABLE: !Ref MessageTable
+          SUBSCRIPTION_TABLE: !Ref SubscriptionTable
+      Code:
+        S3Bucket: !Ref AssetsBucket
+        S3Key: lambda/a2a_server.zip
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub finops-copilot-api-${Environment}
+      Description: FinOps Copilot API
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiGatewayHealthMethod
+      - ApiGatewayCostsMethod
+      - ApiGatewayCostsBreakdownMethod
+      - ApiGatewayCostsTrendsMethod
+      - ApiGatewayCostsForecastMethod
+      - ApiGatewayRecommendationsMethod
+      - ApiGatewayTaggingComplianceMethod
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: !Ref ApiStageName
+
+  ApiGatewayHealthResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: health
+
+  ApiGatewayHealthMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayHealthResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '{"status": "healthy"}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayCostsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: costs
+
+  ApiGatewayCostsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayCostsResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getCosts", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayCostsBreakdownResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !Ref ApiGatewayCostsResource
+      PathPart: breakdown
+
+  ApiGatewayCostsBreakdownMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayCostsBreakdownResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getCostsBreakdown", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayCostsTrendsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !Ref ApiGatewayCostsResource
+      PathPart: trends
+
+  ApiGatewayCostsTrendsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayCostsTrendsResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getCostsTrends", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayCostsForecastResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !Ref ApiGatewayCostsResource
+      PathPart: forecast
+
+  ApiGatewayCostsForecastMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayCostsForecastResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getCostsForecast", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayRecommendationsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: recommendations
+
+  ApiGatewayRecommendationsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayRecommendationsResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getRecommendations", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayTaggingResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: tagging
+
+  ApiGatewayTaggingComplianceResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ParentId: !Ref ApiGatewayTaggingResource
+      PathPart: compliance
+
+  ApiGatewayTaggingComplianceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiGatewayTaggingComplianceResource
+      HttpMethod: GET
+      AuthorizationType: API_KEY
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrchestratorFunction.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"action": "getTaggingCompliance", "parameters": $input.json("$")}'
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+
+  ApiGatewayApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn: ApiGatewayDeployment
+    Properties:
+      Name: !Sub finops-copilot-api-key-${Environment}
+      Description: API Key for FinOps Copilot API
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref ApiGateway
+          StageName: !Ref ApiStageName
+
+  ApiGatewayUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn: ApiGatewayDeployment
+    Properties:
+      Name: !Sub finops-copilot-usage-plan-${Environment}
+      Description: Usage plan for FinOps Copilot API
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: !Ref ApiStageName
+      Throttle:
+        BurstLimit: 10
+        RateLimit: 5
+      Quota:
+        Limit: 1000
+        Period: DAY
+
+  ApiGatewayUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiGatewayApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref ApiGatewayUsagePlan
+
+  # Lambda Permissions
+  OrchestratorFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OrchestratorFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*
+
+  # AWS Bedrock Agents
+  OrchestratorAgent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-orchestrator-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: Orchestrator Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the Orchestrator Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to coordinate the activities of specialized agents to analyze AWS costs,
+        resource utilization, and tagging compliance, and generate actionable cost-saving recommendations.
+      ActionGroups:
+        - ActionGroupName: OrchestratorActions
+          Description: Actions for the Orchestrator Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt OrchestratorFunction.Arn
+
+  EC2Agent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-ec2-agent-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: EC2 Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the EC2 Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to analyze EC2 instance utilization and costs, and generate
+        recommendations for right-sizing, reserved instances, and other cost-saving opportunities.
+      ActionGroups:
+        - ActionGroupName: EC2Actions
+          Description: Actions for the EC2 Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt EC2AgentFunction.Arn
+
+  S3Agent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-s3-agent-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: S3 Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the S3 Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to analyze S3 bucket usage patterns and costs, and generate
+        recommendations for storage class optimization, lifecycle policies, and other cost-saving opportunities.
+      ActionGroups:
+        - ActionGroupName: S3Actions
+          Description: Actions for the S3 Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt S3AgentFunction.Arn
+
+  RDSAgent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-rds-agent-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: RDS Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the RDS Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to analyze RDS instance utilization and costs, and generate
+        recommendations for right-sizing, reserved instances, and other cost-saving opportunities.
+      ActionGroups:
+        - ActionGroupName: RDSActions
+          Description: Actions for the RDS Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt RDSAgentFunction.Arn
+
+  TaggingAgent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-tagging-agent-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: Tagging Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the Tagging Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to analyze resource tagging compliance and generate recommendations
+        for improving tagging practices to enable better cost allocation.
+      ActionGroups:
+        - ActionGroupName: TaggingActions
+          Description: Actions for the Tagging Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt TaggingAgentFunction.Arn
+
+  ForecastingAgent:
+    Type: AWS::Bedrock::Agent
+    Properties:
+      AgentName: !Sub finops-copilot-forecasting-agent-${Environment}
+      AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
+      Description: Forecasting Agent for FinOps Copilot
+      FoundationModel: anthropic.claude-v2
+      Instruction: >
+        You are the Forecasting Agent for FinOps Copilot, an AWS cost optimization system.
+        Your role is to analyze historical cost data and generate cost forecasts to help
+        with budget planning and cost optimization.
+      ActionGroups:
+        - ActionGroupName: ForecastingActions
+          Description: Actions for the Forecasting Agent
+          ActionGroupExecutor:
+            Lambda: !GetAtt ForecastingAgentFunction.Arn
+
+  # App Runner Service for Streamlit Dashboard
+  AppRunnerService:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: !Sub finops-copilot-dashboard-${Environment}
+      SourceConfiguration:
+        CodeRepository:
+          RepositoryUrl: https://github.com/yourusername/finops-copilot.git
+          SourceCodeVersion:
+            Type: BRANCH
+            Value: main
+          CodeConfiguration:
+            ConfigurationSource: REPOSITORY
+            CodeConfigurationValues:
+              BuildCommand: pip install -r frontend/requirements.txt
+              StartCommand: cd frontend && streamlit run app.py
+              Runtime: PYTHON_3
+              RuntimeEnvironmentVariables:
+                - Name: API_ENDPOINT
+                  Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${ApiStageName}
+                - Name: API_KEY
+                  Value: !Ref ApiGatewayApiKey
+                - Name: ENVIRONMENT
+                  Value: !Ref Environment
+      InstanceConfiguration:
+        Cpu: 1
+        Memory: 2
+      HealthCheckConfiguration:
+        Path: /_stcore/health
+        Protocol: HTTP
+      AutoScalingConfigurationArn: !GetAtt AppRunnerAutoScalingConfiguration.Arn
+
+  AppRunnerAutoScalingConfiguration:
+    Type: AWS::AppRunner::AutoScalingConfiguration
+    Properties:
+      AutoScalingConfigurationName: !Sub finops-copilot-autoscaling-${Environment}
+      MaxConcurrency: 10
+      MaxSize: 5
+      MinSize: 1
+
+  # CloudWatch Dashboard
+  CloudWatchDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Ref DashboardName
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/Lambda", "Invocations", "FunctionName", "${OrchestratorFunction}" ],
+                  [ ".", ".", ".", "${EC2AgentFunction}" ],
+                  [ ".", ".", ".", "${S3AgentFunction}" ],
+                  [ ".", ".", ".", "${RDSAgentFunction}" ],
+                  [ ".", ".", ".", "${TaggingAgentFunction}" ],
+                  [ ".", ".", ".", "${ForecastingAgentFunction}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda Invocations",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/Lambda", "Errors", "FunctionName", "${OrchestratorFunction}" ],
+                  [ ".", ".", ".", "${EC2AgentFunction}" ],
+                  [ ".", ".", ".", "${S3AgentFunction}" ],
+                  [ ".", ".", ".", "${RDSAgentFunction}" ],
+                  [ ".", ".", ".", "${TaggingAgentFunction}" ],
+                  [ ".", ".", ".", "${ForecastingAgentFunction}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda Errors",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${ApiGateway}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "API Gateway Requests",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/ApiGateway", "Latency", "ApiName", "${ApiGateway}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "API Gateway Latency",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 12,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/AppRunner", "Requests", "ServiceName", "${AppRunnerService}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "App Runner Requests",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 12,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/AppRunner", "CPU Utilization", "ServiceName", "${AppRunnerService}" ],
+                  [ ".", "Memory Utilization", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "App Runner Resource Utilization",
+                "period": 300
+              }
+            }
+          ]
+        }
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${ApiStageName}
+
+  ApiKey:
+    Description: API Key for accessing the API
+    Value: !Ref ApiGatewayApiKey
+
+  DashboardUrl:
+    Description: URL of the Streamlit dashboard
+    Value: !GetAtt AppRunnerService.ServiceUrl
+
+  AssetsBucketName:
+    Description: Name of the S3 bucket for assets
+    Value: !Ref AssetsBucket
+
+  StateTableName:
+    Description: Name of the DynamoDB table for state
+    Value: !Ref StateTable
+
+  CacheTableName:
+    Description: Name of the DynamoDB table for cache
+    Value: !Ref CacheTable
+
+  MessageTableName:
+    Description: Name of the DynamoDB table for messages
+    Value: !Ref MessageTable
+
+  SubscriptionTableName:
+    Description: Name of the DynamoDB table for subscriptions
+    Value: !Ref SubscriptionTable

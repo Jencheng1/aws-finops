@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <style>
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #232F3E;
+        color: #FFFFFF;
+        font-family: 'Amazon Ember', Arial, sans-serif;
+        padding: 40px;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #FFFFFF;
+      }
+      .content {
+        display: flex;
+        justify-content: space-evenly;
+      }
+      .left-column {
+        flex: 1;
+        padding-right: 40px;
+      }
+      .right-column {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .mcp-description {
+        font-size: 18px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+      .mcp-server {
+        background-color: rgba(0, 102, 204, 0.2);
+        border-left: 4px solid #0066CC;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 0 5px 5px 0;
+      }
+      .mcp-server-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #FF9900;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+      .mcp-server-icon {
+        margin-right: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: #0066CC;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .mcp-server-description {
+        font-size: 16px;
+        line-height: 1.4;
+      }
+      .image-container {
+        width: 480px;
+        height: 480px;
+      }
+      .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="header">
+        <h1 class="title">Model Context Protocol Integration</h1>
+      </div>
+      
+      <div class="content">
+        <div class="left-column">
+          <div class="mcp-description">
+            <p>The Model Context Protocol (MCP) enables AI agents to access and process AWS cost and resource data through specialized servers.</p>
+          </div>
+          
+          <div class="mcp-server">
+            <div class="mcp-server-title">
+              <div class="mcp-server-icon"><i class="fas fa-dollar-sign"></i></div>
+              Cost Explorer MCP Server
+            </div>
+            <div class="mcp-server-description">
+              Provides access to detailed AWS cost data, usage patterns, and spending forecasts for optimization analysis.
+            </div>
+          </div>
+          
+          <div class="mcp-server">
+            <div class="mcp-server-title">
+              <div class="mcp-server-icon"><i class="fas fa-chart-line"></i></div>
+              CloudWatch MCP Server
+            </div>
+            <div class="mcp-server-description">
+              Delivers resource utilization metrics to identify underutilized resources and right-sizing opportunities.
+            </div>
+          </div>
+          
+          <div class="mcp-server">
+            <div class="mcp-server-title">
+              <div class="mcp-server-icon"><i class="fas fa-tags"></i></div>
+              Tagging MCP Server
+            </div>
+            <div class="mcp-server-description">
+              Provides resource tagging information for cost allocation by team, project, or environment.
+            </div>
+          </div>
+        </div>
+        
+        <div class="right-column">
+          <div class="image-container">
+            <img src="/home/ubuntu/finops-copilot-presentation/images/mcp_data_flow.png" alt="MCP Data Flow" width="480" height="480">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

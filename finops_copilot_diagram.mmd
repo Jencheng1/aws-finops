@@ -1,0 +1,61 @@
+flowchart TD
+    %% Define the main components
+    User([User]) --> |"Natural Language Queries"| Chatbot[Streamlit Chatbot Interface]
+    Chatbot --> |"Structured Queries"| Orchestrator[AWS Bedrock Orchestrator Agent]
+    
+    %% Define the AWS Bedrock Agents
+    subgraph "AWS Bedrock Agents"
+        Orchestrator --> CostAgent[Cost Analysis Agent]
+        Orchestrator --> ResourceAgent[Resource Optimization Agent]
+        Orchestrator --> SavingsAgent[Savings Plan Recommendation Agent]
+    end
+    
+    %% Define the MCP Servers
+    subgraph "MCP Servers"
+        CloudabilityMCP[IBM Cloudability MCP Server]
+        ApptioMCP[Apptio MCP Server]
+        CostExplorerMCP[AWS Cost Explorer MCP Server]
+        ResourceMCP[AWS Resource Intelligence MCP Server]
+    end
+    
+    %% Define the Data Sources
+    subgraph "Data Sources"
+        Cloudability[(IBM Cloudability)]
+        Apptio[(Apptio)]
+        CostExplorer[(AWS Cost Explorer)]
+        CloudWatch[(AWS CloudWatch)]
+        ComputeOptimizer[(AWS Compute Optimizer)]
+        TrustedAdvisor[(AWS Trusted Advisor)]
+    end
+    
+    %% Connect Agents to MCP Servers
+    CostAgent <--> |"MCP Protocol"| CloudabilityMCP
+    CostAgent <--> |"MCP Protocol"| ApptioMCP
+    CostAgent <--> |"MCP Protocol"| CostExplorerMCP
+    ResourceAgent <--> |"MCP Protocol"| ResourceMCP
+    SavingsAgent <--> |"MCP Protocol"| CostExplorerMCP
+    
+    %% Connect MCP Servers to Data Sources
+    CloudabilityMCP <--> |"API Calls"| Cloudability
+    ApptioMCP <--> |"API Calls"| Apptio
+    CostExplorerMCP <--> |"API Calls"| CostExplorer
+    ResourceMCP <--> |"API Calls"| CloudWatch
+    ResourceMCP <--> |"API Calls"| ComputeOptimizer
+    ResourceMCP <--> |"API Calls"| TrustedAdvisor
+    
+    %% Connect Orchestrator back to Chatbot
+    Orchestrator --> |"Insights & Recommendations"| Chatbot
+    Chatbot --> |"Visualizations & Recommendations"| User
+    
+    %% Styling
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px
+    classDef interface fill:#bbf,stroke:#333,stroke-width:2px
+    classDef agent fill:#bfb,stroke:#333,stroke-width:2px
+    classDef mcp fill:#fbb,stroke:#333,stroke-width:2px
+    classDef datasource fill:#ddd,stroke:#333,stroke-width:2px
+    
+    class User user
+    class Chatbot interface
+    class Orchestrator,CostAgent,ResourceAgent,SavingsAgent agent
+    class CloudabilityMCP,ApptioMCP,CostExplorerMCP,ResourceMCP mcp
+    class Cloudability,Apptio,CostExplorer,CloudWatch,ComputeOptimizer,TrustedAdvisor datasource

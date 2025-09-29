@@ -1,0 +1,64 @@
+sequenceDiagram
+    participant User as User
+    participant Chatbot as Streamlit Chatbot
+    participant Orchestrator as Orchestrator Agent
+    participant CostAgent as Cost Analysis Agent
+    participant ResourceAgent as Resource Optimization Agent
+    participant SavingsAgent as Savings Plan Agent
+    participant CloudabilityMCP as Cloudability MCP
+    participant ApptioMCP as Apptio MCP
+    participant CostExplorerMCP as Cost Explorer MCP
+    participant ResourceMCP as Resource Intelligence MCP
+    participant DataSources as Data Sources
+    
+    User->>Chatbot: Ask question about AWS costs
+    Chatbot->>Orchestrator: Forward natural language query
+    
+    Orchestrator->>Orchestrator: Analyze query intent
+    
+    alt Cost Analysis Query
+        Orchestrator->>CostAgent: Request cost analysis
+        CostAgent->>CloudabilityMCP: Get cost data
+        CloudabilityMCP->>DataSources: API call to Cloudability
+        DataSources->>CloudabilityMCP: Return cost data
+        CloudabilityMCP->>CostAgent: Format and return data
+        
+        CostAgent->>ApptioMCP: Get budget data
+        ApptioMCP->>DataSources: API call to Apptio
+        DataSources->>ApptioMCP: Return budget data
+        ApptioMCP->>CostAgent: Format and return data
+        
+        CostAgent->>CostExplorerMCP: Get AWS cost data
+        CostExplorerMCP->>DataSources: API call to AWS Cost Explorer
+        DataSources->>CostExplorerMCP: Return AWS cost data
+        CostExplorerMCP->>CostAgent: Format and return data
+        
+        CostAgent->>Orchestrator: Return consolidated cost analysis
+    
+    else Resource Optimization Query
+        Orchestrator->>ResourceAgent: Request resource optimization
+        ResourceAgent->>ResourceMCP: Get idle resources
+        ResourceMCP->>DataSources: API calls to AWS services
+        DataSources->>ResourceMCP: Return resource data
+        ResourceMCP->>ResourceAgent: Format and return data
+        
+        ResourceAgent->>ResourceMCP: Get rightsizing recommendations
+        ResourceMCP->>DataSources: API call to Compute Optimizer
+        DataSources->>ResourceMCP: Return recommendations
+        ResourceMCP->>ResourceAgent: Format and return data
+        
+        ResourceAgent->>Orchestrator: Return optimization recommendations
+    
+    else Savings Plan Query
+        Orchestrator->>SavingsAgent: Request savings plan recommendations
+        SavingsAgent->>CostExplorerMCP: Get savings plan recommendations
+        CostExplorerMCP->>DataSources: API call to AWS Savings Plans
+        DataSources->>CostExplorerMCP: Return recommendations
+        CostExplorerMCP->>SavingsAgent: Format and return data
+        
+        SavingsAgent->>Orchestrator: Return savings plan recommendations
+    end
+    
+    Orchestrator->>Chatbot: Return consolidated insights and recommendations
+    Chatbot->>Chatbot: Generate visualizations
+    Chatbot->>User: Display results with visualizations and recommendations

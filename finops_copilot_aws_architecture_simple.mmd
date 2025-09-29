@@ -1,0 +1,34 @@
+flowchart TD
+    %% Define the main components with AWS icons
+    User([User]) --> WebApp[Streamlit Web Interface]
+    WebApp --> APIGateway[Amazon API Gateway]
+    APIGateway --> BedrockOrchestrator[Amazon Bedrock Orchestrator]
+    
+    %% Define the AWS Bedrock Agents
+    BedrockOrchestrator --> BedrockAgents[AWS Bedrock Agents]
+    
+    %% Define the Lambda functions for MCP servers
+    BedrockAgents --> MCPLambdas[AWS Lambda MCP Servers]
+    
+    %% Define the data sources
+    MCPLambdas --> CostExplorer[AWS Cost Explorer]
+    MCPLambdas --> CloudWatch[Amazon CloudWatch]
+    MCPLambdas --> TrustedAdvisor[AWS Trusted Advisor]
+    MCPLambdas --> ExternalAPIs[External APIs\nCloudability & Apptio]
+    
+    %% Define the data storage
+    BedrockAgents --> S3[Amazon S3]
+    
+    %% Define the authentication
+    Cognito[Amazon Cognito] --> WebApp
+    
+    %% Styling
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px
+    classDef webapp fill:#bbf,stroke:#333,stroke-width:2px
+    classDef aws fill:#FF9900,stroke:#333,stroke-width:2px,color:#000
+    classDef external fill:#ddd,stroke:#333,stroke-width:2px
+    
+    class User user
+    class WebApp webapp
+    class APIGateway,BedrockOrchestrator,BedrockAgents,MCPLambdas,CostExplorer,CloudWatch,TrustedAdvisor,S3,Cognito aws
+    class ExternalAPIs external

@@ -1,0 +1,118 @@
+graph TD
+    %% User Interface Layer
+    User[User] --> Dashboard[Streamlit Dashboard]
+    
+    %% Orchestrator Layer
+    Dashboard --> Orchestrator[AWS Bedrock Orchestrator Agent]
+    
+    %% Agent Layer - Service Agents
+    Orchestrator --> EC2Agent[EC2 Agent]
+    Orchestrator --> S3Agent[S3 Agent]
+    Orchestrator --> RDSAgent[RDS Agent]
+    
+    %% Agent Layer - Strategy Agents
+    Orchestrator --> TaggingAgent[Tagging Agent]
+    Orchestrator --> ForecastingAgent[Forecasting Agent]
+    
+    %% MCP Server Layer
+    EC2Agent --> CostExplorerMCP[Cost Explorer MCP Server]
+    S3Agent --> CostExplorerMCP
+    RDSAgent --> CostExplorerMCP
+    
+    EC2Agent --> CloudWatchMCP[CloudWatch MCP Server]
+    S3Agent --> CloudWatchMCP
+    RDSAgent --> CloudWatchMCP
+    
+    TaggingAgent --> TaggingMCP[Tagging MCP Server]
+    
+    ForecastingAgent --> CostExplorerMCP
+    
+    %% External Integration Layer
+    CostExplorerMCP --> CloudHealth[CloudHealth]
+    CostExplorerMCP --> Cloudability[Cloudability]
+    CostExplorerMCP --> SpotIO[Spot.io]
+    CostExplorerMCP --> TrustedAdvisor[AWS Trusted Advisor]
+    
+    %% AWS Services Layer
+    CostExplorerMCP --> CostExplorer[AWS Cost Explorer]
+    CloudWatchMCP --> CloudWatch[AWS CloudWatch]
+    TaggingMCP --> TagEditor[AWS Resource Groups & Tag Editor]
+    
+    %% Communication Framework
+    EC2Agent <--> A2AServer[A2A Communication Server]
+    S3Agent <--> A2AServer
+    RDSAgent <--> A2AServer
+    TaggingAgent <--> A2AServer
+    ForecastingAgent <--> A2AServer
+    Orchestrator <--> A2AServer
+    
+    %% Deployment Architecture
+    subgraph AWS
+        subgraph "AWS Lambda"
+            Orchestrator
+            EC2Agent
+            S3Agent
+            RDSAgent
+            TaggingAgent
+            ForecastingAgent
+            CostExplorerMCP
+            CloudWatchMCP
+            TaggingMCP
+            A2AServer
+        end
+        
+        subgraph "AWS App Runner"
+            Dashboard
+        end
+        
+        subgraph "AWS Services"
+            CostExplorer
+            CloudWatch
+            TagEditor
+            TrustedAdvisor
+        end
+        
+        subgraph "Security & Management"
+            IAM[AWS IAM]
+            Secrets[AWS Secrets Manager]
+            APIGateway[Amazon API Gateway]
+        end
+    end
+    
+    %% API Gateway connections
+    Dashboard --> APIGateway
+    APIGateway --> Orchestrator
+    
+    %% Security connections
+    Orchestrator --> IAM
+    EC2Agent --> IAM
+    S3Agent --> IAM
+    RDSAgent --> IAM
+    TaggingAgent --> IAM
+    ForecastingAgent --> IAM
+    
+    CostExplorerMCP --> Secrets
+    CloudWatchMCP --> Secrets
+    TaggingMCP --> Secrets
+    
+    %% Style definitions
+    classDef userInterface fill:#6BB1CC,stroke:#333,stroke-width:1px,color:#fff
+    classDef orchestrator fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef serviceAgents fill:#527FFF,stroke:#333,stroke-width:1px,color:#fff
+    classDef strategyAgents fill:#527FFF,stroke:#333,stroke-width:1px,color:#fff
+    classDef mcpServers fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef externalTools fill:#91C7B1,stroke:#333,stroke-width:1px,color:#333
+    classDef awsServices fill:#232F3E,stroke:#333,stroke-width:1px,color:#fff
+    classDef communication fill:#B04759,stroke:#333,stroke-width:1px,color:#fff
+    classDef security fill:#5A5A5A,stroke:#333,stroke-width:1px,color:#fff
+    
+    %% Apply styles
+    class User,Dashboard userInterface
+    class Orchestrator orchestrator
+    class EC2Agent,S3Agent,RDSAgent serviceAgents
+    class TaggingAgent,ForecastingAgent strategyAgents
+    class CostExplorerMCP,CloudWatchMCP,TaggingMCP mcpServers
+    class CloudHealth,Cloudability,SpotIO,TrustedAdvisor externalTools
+    class CostExplorer,CloudWatch,TagEditor awsServices
+    class A2AServer communication
+    class IAM,Secrets,APIGateway security

@@ -1,0 +1,123 @@
+graph TB
+    %% User and Internet
+    User[User] --> Internet[Internet]
+    Internet --> APIGateway[Amazon API Gateway]
+    
+    %% API Gateway
+    APIGateway --> AppRunner[AWS App Runner]
+    APIGateway --> OrchestratorLambda[Orchestrator Lambda]
+    
+    %% App Runner
+    AppRunner --> StreamlitApp[Streamlit Dashboard]
+    StreamlitApp --> S3Assets[S3 - Static Assets]
+    StreamlitApp --> APIGateway
+    
+    %% Lambda Functions
+    subgraph "AWS Lambda Functions"
+        OrchestratorLambda[Orchestrator Agent Lambda]
+        EC2AgentLambda[EC2 Agent Lambda]
+        S3AgentLambda[S3 Agent Lambda]
+        RDSAgentLambda[RDS Agent Lambda]
+        TaggingAgentLambda[Tagging Agent Lambda]
+        ForecastingAgentLambda[Forecasting Agent Lambda]
+        CostExplorerMCPLambda[Cost Explorer MCP Lambda]
+        CloudWatchMCPLambda[CloudWatch MCP Lambda]
+        TaggingMCPLambda[Tagging MCP Lambda]
+        A2AServerLambda[A2A Communication Server Lambda]
+    end
+    
+    %% Lambda Connections
+    OrchestratorLambda --> EC2AgentLambda
+    OrchestratorLambda --> S3AgentLambda
+    OrchestratorLambda --> RDSAgentLambda
+    OrchestratorLambda --> TaggingAgentLambda
+    OrchestratorLambda --> ForecastingAgentLambda
+    
+    EC2AgentLambda --> CostExplorerMCPLambda
+    EC2AgentLambda --> CloudWatchMCPLambda
+    S3AgentLambda --> CostExplorerMCPLambda
+    S3AgentLambda --> CloudWatchMCPLambda
+    RDSAgentLambda --> CostExplorerMCPLambda
+    RDSAgentLambda --> CloudWatchMCPLambda
+    TaggingAgentLambda --> TaggingMCPLambda
+    ForecastingAgentLambda --> CostExplorerMCPLambda
+    
+    EC2AgentLambda <--> A2AServerLambda
+    S3AgentLambda <--> A2AServerLambda
+    RDSAgentLambda <--> A2AServerLambda
+    TaggingAgentLambda <--> A2AServerLambda
+    ForecastingAgentLambda <--> A2AServerLambda
+    OrchestratorLambda <--> A2AServerLambda
+    
+    %% AWS Services
+    CostExplorerMCPLambda --> CostExplorer[AWS Cost Explorer]
+    CloudWatchMCPLambda --> CloudWatch[AWS CloudWatch]
+    TaggingMCPLambda --> TagEditor[AWS Resource Groups & Tag Editor]
+    CostExplorerMCPLambda --> TrustedAdvisor[AWS Trusted Advisor]
+    
+    %% External Integrations
+    CostExplorerMCPLambda --> CloudHealth[CloudHealth API]
+    CostExplorerMCPLambda --> Cloudability[Cloudability API]
+    CostExplorerMCPLambda --> SpotIO[Spot.io API]
+    
+    %% Storage
+    OrchestratorLambda --> DynamoDB[DynamoDB - State Storage]
+    StreamlitApp --> DynamoDB
+    
+    %% Security
+    subgraph "Security & Management"
+        IAM[AWS IAM]
+        Secrets[AWS Secrets Manager]
+        CloudTrail[AWS CloudTrail]
+        CloudFormation[AWS CloudFormation]
+    end
+    
+    %% Security Connections
+    OrchestratorLambda --> IAM
+    EC2AgentLambda --> IAM
+    S3AgentLambda --> IAM
+    RDSAgentLambda --> IAM
+    TaggingAgentLambda --> IAM
+    ForecastingAgentLambda --> IAM
+    CostExplorerMCPLambda --> IAM
+    CloudWatchMCPLambda --> IAM
+    TaggingMCPLambda --> IAM
+    A2AServerLambda --> IAM
+    
+    CostExplorerMCPLambda --> Secrets
+    CloudWatchMCPLambda --> Secrets
+    TaggingMCPLambda --> Secrets
+    
+    %% Monitoring
+    OrchestratorLambda --> CloudWatch
+    EC2AgentLambda --> CloudWatch
+    S3AgentLambda --> CloudWatch
+    RDSAgentLambda --> CloudWatch
+    TaggingAgentLambda --> CloudWatch
+    ForecastingAgentLambda --> CloudWatch
+    CostExplorerMCPLambda --> CloudWatch
+    CloudWatchMCPLambda --> CloudWatch
+    TaggingMCPLambda --> CloudWatch
+    A2AServerLambda --> CloudWatch
+    
+    %% Style definitions
+    classDef user fill:#85C1E9,stroke:#333,stroke-width:1px,color:#333
+    classDef internet fill:#D5DBDB,stroke:#333,stroke-width:1px,color:#333
+    classDef apiGateway fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef appRunner fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef lambda fill:#FF9900,stroke:#333,stroke-width:1px,color:#333
+    classDef storage fill:#3498DB,stroke:#333,stroke-width:1px,color:#fff
+    classDef awsServices fill:#232F3E,stroke:#333,stroke-width:1px,color:#fff
+    classDef externalAPI fill:#91C7B1,stroke:#333,stroke-width:1px,color:#333
+    classDef security fill:#5A5A5A,stroke:#333,stroke-width:1px,color:#fff
+    
+    %% Apply styles
+    class User user
+    class Internet internet
+    class APIGateway apiGateway
+    class AppRunner,StreamlitApp appRunner
+    class OrchestratorLambda,EC2AgentLambda,S3AgentLambda,RDSAgentLambda,TaggingAgentLambda,ForecastingAgentLambda,CostExplorerMCPLambda,CloudWatchMCPLambda,TaggingMCPLambda,A2AServerLambda lambda
+    class S3Assets,DynamoDB storage
+    class CostExplorer,CloudWatch,TagEditor,TrustedAdvisor awsServices
+    class CloudHealth,Cloudability,SpotIO externalAPI
+    class IAM,Secrets,CloudTrail,CloudFormation security

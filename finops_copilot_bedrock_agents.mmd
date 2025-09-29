@@ -1,0 +1,74 @@
+flowchart TB
+    %% Define the main components
+    subgraph "AWS Bedrock Agents"
+        direction TB
+        
+        subgraph "Orchestrator Agent"
+            direction TB
+            OrchestratorLLM[AWS Claude 3 Sonnet]
+            OrchestratorActionGroup[Action Group]
+            OrchestratorKnowledgeBase[Knowledge Base]
+            
+            OrchestratorActionGroup --> |"Query Routing"| QueryRouter["Query Router\n- Cost Analysis\n- Resource Optimization\n- Savings Plans"]
+            OrchestratorActionGroup --> |"Agent Coordination"| AgentCoordinator["Agent Coordinator\n- Parallel Processing\n- Result Aggregation"]
+            OrchestratorActionGroup --> |"Response Generation"| ResponseGenerator["Response Generator\n- Natural Language\n- Visualization Data"]
+        end
+        
+        subgraph "Cost Analysis Agent"
+            direction TB
+            CostLLM[AWS Claude 3 Haiku]
+            CostActionGroup[Action Group]
+            CostKnowledgeBase[Knowledge Base]
+            
+            CostActionGroup --> |"Cost Data"| CostDataAction["Cost Data Actions\n- Get Cost Breakdown\n- Get Cost Trends\n- Get Cost Anomalies"]
+            CostActionGroup --> |"Budget Analysis"| BudgetAction["Budget Actions\n- Get Budget vs Actual\n- Get Forecast"]
+            CostActionGroup --> |"Cost Allocation"| AllocationAction["Allocation Actions\n- Get Cost by Service\n- Get Cost by Account\n- Get Cost by Tag"]
+        end
+        
+        subgraph "Resource Optimization Agent"
+            direction TB
+            ResourceLLM[AWS Claude 3 Haiku]
+            ResourceActionGroup[Action Group]
+            ResourceKnowledgeBase[Knowledge Base]
+            
+            ResourceActionGroup --> |"Idle Resources"| IdleAction["Idle Resource Actions\n- Get Idle EC2\n- Get Idle EBS\n- Get Idle RDS"]
+            ResourceActionGroup --> |"Rightsizing"| RightsizingAction["Rightsizing Actions\n- Get EC2 Recommendations\n- Get RDS Recommendations"]
+            ResourceActionGroup --> |"Tagging"| TaggingAction["Tagging Actions\n- Get Untagged Resources\n- Get Tag Compliance"]
+        end
+        
+        subgraph "Savings Plan Agent"
+            direction TB
+            SavingsLLM[AWS Claude 3 Haiku]
+            SavingsActionGroup[Action Group]
+            SavingsKnowledgeBase[Knowledge Base]
+            
+            SavingsActionGroup --> |"Recommendations"| SPRecommendAction["Recommendation Actions\n- Get SP Recommendations\n- Get RI Recommendations"]
+            SavingsActionGroup --> |"Utilization"| SPUtilizationAction["Utilization Actions\n- Get SP Utilization\n- Get RI Utilization"]
+            SavingsActionGroup --> |"Coverage"| SPCoverageAction["Coverage Actions\n- Get SP Coverage\n- Get Coverage Gap"]
+        end
+    end
+    
+    %% Connect the agents
+    OrchestratorActionGroup --> |"Delegate"| CostActionGroup
+    OrchestratorActionGroup --> |"Delegate"| ResourceActionGroup
+    OrchestratorActionGroup --> |"Delegate"| SavingsActionGroup
+    
+    %% Connect to MCP Servers
+    CostActionGroup -.-> |"MCP"| CloudabilityMCP[IBM Cloudability MCP]
+    CostActionGroup -.-> |"MCP"| ApptioMCP[Apptio MCP]
+    CostActionGroup -.-> |"MCP"| CostExplorerMCP[AWS Cost Explorer MCP]
+    ResourceActionGroup -.-> |"MCP"| ResourceMCP[AWS Resource Intelligence MCP]
+    SavingsActionGroup -.-> |"MCP"| CostExplorerMCP
+    
+    %% Styling
+    classDef llm fill:#f9f,stroke:#333,stroke-width:2px
+    classDef actionGroup fill:#bfb,stroke:#333,stroke-width:2px
+    classDef knowledgeBase fill:#bbf,stroke:#333,stroke-width:2px
+    classDef action fill:#fbb,stroke:#333,stroke-width:2px
+    classDef mcp fill:#ddd,stroke:#333,stroke-width:2px
+    
+    class OrchestratorLLM,CostLLM,ResourceLLM,SavingsLLM llm
+    class OrchestratorActionGroup,CostActionGroup,ResourceActionGroup,SavingsActionGroup actionGroup
+    class OrchestratorKnowledgeBase,CostKnowledgeBase,ResourceKnowledgeBase,SavingsKnowledgeBase knowledgeBase
+    class QueryRouter,AgentCoordinator,ResponseGenerator,CostDataAction,BudgetAction,AllocationAction,IdleAction,RightsizingAction,TaggingAction,SPRecommendAction,SPUtilizationAction,SPCoverageAction action
+    class CloudabilityMCP,ApptioMCP,CostExplorerMCP,ResourceMCP mcp
