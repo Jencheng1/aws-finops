@@ -1,128 +1,180 @@
-# FinOps Copilot: AWS Cost Intelligence with MCP Integration
+# AI-Powered FinOps System with Integrated Chatbot
 
-FinOps Copilot is an AI-powered multi-agent system built on AWS Bedrock that provides comprehensive AWS cost optimization insights and recommendations. The system leverages specialized agents, Model Context Protocol (MCP) servers, and Agent-to-Agent (A2A) communication to analyze AWS costs, resource utilization, and tagging compliance, and generate actionable cost-saving recommendations.
+A comprehensive AWS FinOps platform that combines real-time cost analysis, AI-powered insights, and an integrated chatbot interface for natural language interactions. Built on AWS Bedrock, Lambda functions, and Model Context Protocol (MCP) for seamless integration with external tools.
 
-## Architecture
+## 🚀 Features
 
-The FinOps Copilot system consists of the following components:
+### Core Functionality
+- **Real-time Cost Analysis**: Monitor AWS costs across all services
+- **AI-Powered Chatbot**: Natural language interface for cost queries
+- **Bedrock Integration**: Advanced AI analysis using AWS Bedrock agents
+- **Lambda Functions**: Serverless compute for cost processing
+- **MCP Support**: External AI tool integration via Model Context Protocol
+- **Export Capabilities**: CSV, JSON, and PDF report generation
 
-### MCP Servers
+### Dashboard Components
+- **Cost Overview**: Service-by-service cost breakdown with visualizations
+- **Trend Analysis**: Historical cost patterns and growth trends
+- **EC2 Optimization**: Instance utilization analysis and recommendations
+- **AI Chat Interface**: Interactive chatbot for cost insights
+- **Lambda Testing**: Direct Lambda function invocation for debugging
 
-- **IBM Cloudability MCP Server**: Provides access to IBM Cloudability cost data and optimization recommendations
-- **Apptio MCP Server**: Provides access to Apptio cost data and optimization recommendations
-- **AWS Cost Explorer MCP Server**: Provides access to AWS Cost Explorer data and Savings Plans recommendations
-- **AWS Resource Intelligence MCP Server**: Provides access to AWS resource utilization data and idle resource detection
+## 🏗️ Architecture
 
-### AWS Bedrock Agents
-
-- **Orchestrator Agent**: Coordinates the activities of all other agents
-- **Cost Analysis Agent**: Analyzes cost data from multiple sources
-- **Resource Optimization Agent**: Identifies opportunities to optimize AWS resources
-- **Savings Plan Recommendation Agent**: Provides recommendations for AWS Savings Plans
-
-### Chatbot Interface
-
-- **Streamlit Application**: Provides a web-based interface for interacting with the system
-- **Natural Language Query Processing**: Allows users to ask questions in natural language
-- **Interactive Visualizations**: Displays cost data and trends in an easy-to-understand format
-- **Actionable Recommendations**: Provides specific recommendations for cost optimization
-
-## Features
-
-- **Comprehensive Cost Analysis**: Detailed cost trend analysis, service breakdown, and forecasting
-- **Resource Optimization**: Recommendations for right-sizing, reserved instances, and other cost-saving opportunities
-- **Tagging and Environment Tracking**: Analysis of tagging compliance and cost allocation by environment
-- **Interactive Visualizations**: Rich visualizations of cost trends, service breakdown, and optimization opportunities
-- **Executive Summaries**: Concise summaries of key findings and recommendations for stakeholders
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.10 or higher
-- AWS account with appropriate permissions
-- IBM Cloudability account (optional)
-- Apptio account (optional)
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/finops-copilot.git
-cd finops-copilot
+```
+┌─────────────────────────────────────────────────┐
+│          Streamlit Dashboard (UI)               │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐   │
+│  │   Cost   │ │   EC2    │ │   AI Chat    │   │
+│  │ Overview │ │ Analysis │ │  Interface   │   │
+│  └──────────┘ └──────────┘ └──────────────┘   │
+└────────────────────┬────────────────────────────┘
+                     │
+      ┌──────────────┼──────────────────┐
+      │              │                  │
+┌─────▼─────┐ ┌─────▼──────┐ ┌────────▼────────┐
+│  AWS Cost │ │   Bedrock  │ │   MCP Server    │
+│  Explorer │ │   Agents   │ │  (WebSocket)    │
+└───────────┘ └─────┬──────┘ └─────────────────┘
+                    │
+             ┌──────▼──────┐
+             │   Lambda    │
+             │  Functions  │
+             └─────────────┘
 ```
 
-2. Install the required packages:
+## 📋 Prerequisites
 
+- Python 3.8+
+- AWS Account with appropriate permissions
+- AWS CLI configured
+- Active AWS Cost Explorer
+
+## 🏃 Quick Start
+
+### Automated Deployment
 ```bash
-pip install -r requirements.txt
+# Run the quick start script
+./quickstart.sh
 ```
 
-3. Set up environment variables:
+This will:
+1. Set up Python environment
+2. Deploy AWS resources
+3. Start MCP server
+4. Run tests
+5. Launch the dashboard
 
+### Manual Deployment
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed step-by-step instructions.
+
+## 📚 Documentation
+
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Comprehensive testing procedures
+- **[AI_FinOps_Complete_Documentation.ipynb](AI_FinOps_Complete_Documentation.ipynb)** - Technical deep dive
+
+## 🧪 Testing
+
+Run the comprehensive test suite:
 ```bash
-export AWS_ACCESS_KEY_ID=your_access_key
-export AWS_SECRET_ACCESS_KEY=your_secret_key
-export AWS_REGION=your_region
-export CLOUDABILITY_API_KEY=your_cloudability_api_key
-export APPTIO_API_KEY=your_apptio_api_key
-export APPTIO_ENV_ID=your_apptio_env_id
+python test_chatbot_integration.py
 ```
 
-### Running the MCP Servers
+For detailed testing instructions, see [TESTING_GUIDE.md](TESTING_GUIDE.md).
 
-1. Start the IBM Cloudability MCP server:
+## 💬 Using the Chatbot
 
-```bash
-python cloudability_mcp_server.py
+The integrated chatbot supports natural language queries:
+
+### Example Questions
+- "What are my top 5 AWS services by cost?"
+- "How can I reduce my EC2 costs?"
+- "Show me cost trends for the last week"
+- "Which services are growing fastest?"
+- "Forecast my costs for next month"
+
+### Enhanced Chat Mode
+Enable in the sidebar for a focused chat experience with:
+- Quick prompt buttons
+- Full cost data context
+- Export chat history
+
+## 📁 Project Structure
+
+```
+aws-finops/
+├── finops_dashboard_with_chatbot.py  # Main dashboard with chatbot
+├── deploy_finops_system.py           # AWS deployment script
+├── mcp_appitio_integration.py        # MCP server implementation
+├── lambda_functions/                  # Lambda function code
+│   ├── cost_analysis_lambda.py
+│   ├── optimization_lambda.py
+│   └── forecasting_lambda.py
+├── test_chatbot_integration.py       # Comprehensive test suite
+├── finops_config.json               # Configuration file
+├── requirements.txt                 # Python dependencies
+├── quickstart.sh                   # Quick start script
+├── DEPLOYMENT_GUIDE.md             # Deployment documentation
+├── TESTING_GUIDE.md               # Testing documentation
+└── README.md                      # This file
 ```
 
-2. Start the Apptio MCP server:
+## 🔧 Configuration
 
-```bash
-python apptio_mcp_server.py
+The system uses `finops_config.json` for configuration:
+
+```json
+{
+    "agents": [
+        {
+            "agent_id": "YOUR_AGENT_ID",
+            "alias_id": "YOUR_ALIAS_ID"
+        }
+    ],
+    "bucket": "finops-artifacts-bucket",
+    "lambda_functions": {
+        "finops-cost-analysis": "arn:aws:lambda:..."
+    }
+}
 ```
 
-3. Start the AWS Cost Explorer MCP server:
+## 🚨 Troubleshooting
 
-```bash
-python aws_cost_explorer_mcp_server.py
-```
+### Common Issues
 
-4. Start the AWS Resource Intelligence MCP server:
+1. **"Access Denied" errors**
+   - Check IAM permissions
+   - Ensure Cost Explorer is enabled
 
-```bash
-python aws_resource_intelligence_mcp_server.py
-```
+2. **Chatbot not responding**
+   - Verify Bedrock agent deployment
+   - Check fallback responses are working
 
-### Running the Chatbot Interface
+3. **No cost data**
+   - Confirm AWS usage in selected period
+   - Try extending the time range
 
-```bash
-streamlit run aws_cost_chatbot.py
-```
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#troubleshooting) for detailed troubleshooting.
 
-## Usage
+## 🤝 Contributing
 
-1. Open the chatbot interface in your web browser at `http://localhost:8501`.
-2. Use the sidebar to set filters for time period, services, accounts, regions, and tags.
-3. Ask questions about your AWS costs and resource usage in natural language.
-4. View the responses, visualizations, and recommendations provided by the system.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `python test_chatbot_integration.py`
+5. Submit a pull request
 
-## Example Queries
+## 📄 License
 
-- "What's my AWS cost breakdown for the last month?"
-- "How can I optimize my EC2 costs?"
-- "Do I have any idle resources that I can remove?"
-- "What Savings Plans would you recommend for my usage?"
-- "How has my S3 cost trend changed over the past 3 months?"
+MIT License - see LICENSE file for details
 
-## License
+## 🙏 Acknowledgments
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- AWS Bedrock team for AI capabilities
+- Streamlit for the dashboard framework
+- The FinOps community for best practices
 
-## Acknowledgments
+---
 
-- AWS Bedrock team for providing the multi-agent collaboration capability
-- IBM Cloudability and Apptio for their cost management platforms
-- Model Context Protocol (MCP) for enabling seamless integration between AI applications and external systems
+For detailed setup and usage instructions, please refer to the documentation files listed above.

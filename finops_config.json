@@ -1,0 +1,18 @@
+{
+  "deployment_time": "2025-09-30T10:47:54.116279",
+  "account_id": "637423485585",
+  "region": "us-east-1",
+  "bucket_name": "finops-bedrock-637423485585-1759229243",
+  "agents": [
+    {
+      "name": "FinOpsCostAnalyzer",
+      "agent_id": "S8AZOE6JRP",
+      "alias_id": "L9ZMELFBMS"
+    }
+  ],
+  "lambda_functions": [
+    "finops-cost-analysis"
+  ],
+  "streamlit_app": "finops_dashboard.py",
+  "test_suite": "test_finops.py"
+}
