@@ -1,0 +1,29 @@
+{
+  "mcp_version": "1.0",
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8765,
+    "protocol": "websocket"
+  },
+  "tools": [
+    {
+      "name": "get_cost_analysis",
+      "endpoint": "/tools/cost_analysis",
+      "description": "Get AWS cost analysis"
+    },
+    {
+      "name": "get_optimization_recommendations",
+      "endpoint": "/tools/optimizations",
+      "description": "Get optimization recommendations"
+    },
+    {
+      "name": "forecast_costs",
+      "endpoint": "/tools/forecast",
+      "description": "Forecast future costs"
+    }
+  ],
+  "authentication": {
+    "type": "api_key",
+    "header": "X-MCP-API-Key"
+  }
+}
