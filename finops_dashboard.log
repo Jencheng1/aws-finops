@@ -1,0 +1,4 @@
+  File "enhanced_integrated_dashboard.py", line 660
+    if prompt := st.chat_input("Ask me about costs, budgets, savings, or optimizations..."):
+               ^
+SyntaxError: invalid syntax

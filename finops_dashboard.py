@@ -147,7 +147,8 @@ with tab3:
             st.markdown(message["content"])
     
     # Chat input
-    if prompt := st.chat_input("Ask about your AWS costs..."):
+    prompt = st.chat_input("Ask about your AWS costs...")
+    if prompt:
         # Add user message
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
