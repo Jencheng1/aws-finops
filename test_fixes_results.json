@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-10-01T01:51:18.937362",
+  "tests": {
+    "Optimization Scan": true,
+    "Budget Prediction": true,
+    "Savings Plan Agent": true,
+    "Agent Routing": true
+  },
+  "overall_success": true,
+  "details": {
+    "optimization_savings_found": 120.6,
+    "orphaned_snapshots_count": 54
+  }
+}

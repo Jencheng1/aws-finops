@@ -1,0 +1,308 @@
+{
+  "stopped_instances": [
+    {
+      "instance_id": "i-013415de88e94582b",
+      "instance_type": "t3.large",
+      "storage_gb": 60,
+      "monthly_cost": 6.0,
+      "name": "sre-demo-new"
+    },
+    {
+      "instance_id": "i-0c4774f96f67467cd",
+      "instance_type": "t3.large",
+      "storage_gb": 40,
+      "monthly_cost": 4.0,
+      "name": "JMS"
+    }
+  ],
+  "unattached_volumes": [],
+  "unused_eips": [],
+  "underutilized_instances": [
+    {
+      "instance_id": "i-019b3a05e5729a273",
+      "instance_type": "t3.large",
+      "avg_cpu_percent": 4.32,
+      "recommendation": "Consider downsizing"
+    }
+  ],
+  "orphaned_snapshots": [
+    {
+      "snapshot_id": "snap-0acd5c5ba7f8cfc78",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-01003614f167bb4ab",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-05ab0947f1199736d",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-093adf14420ff6ce4",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0e708581f0aeeadb3",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0fedd7d5ae867e2d3",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0cecea40ed39444af",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0da788b696a08c4a0",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-02b086a009f992674",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-08411f67b485d4de3",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-09faeb72697dee306",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-08b449b2294488b83",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0ab1a5f5ff69152d4",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0b5b49106b8d067c4",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-024a7d1840dbd387d",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-07d0da4dd9a216aae",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-02a3688680717ff9a",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-048e2c6d723876b76",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0f203012d6794c9c0",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0448e414d8ddb8320",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-03c3a2f8842ff92f6",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-031c96f57794b6023",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0510a10b4340babeb",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0ed68c3ab825027e0",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-012b415b8c7b32835",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-0b2a06ba14b08f48a",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-04a911497c7789aab",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-01a6c0ab6767cbbbd",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0abeb43f25250d5cd",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-070c0eec87806ff3e",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-019009111a2251cf2",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0fa9e51903f657dc5",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0a617d8aa050b543e",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-09fa3eda23477e89c",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-02da9d19819817b4e",
+      "size_gb": 40,
+      "monthly_cost": 2.0
+    },
+    {
+      "snapshot_id": "snap-0c78fed09d689ee4c",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-0934b609197fd6e86",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-07b0a647695ce6f64",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-088c4ebdab6355e87",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-07ec69c63fcc68922",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-09056b60f284cb9e3",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-097191b6aa399a6f4",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-00369d523ad9d46ca",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-06a83ae379c99c599",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-09f18b8d8326eeb15",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0f56252c0e1d65eaa",
+      "size_gb": 60,
+      "monthly_cost": 3.0
+    },
+    {
+      "snapshot_id": "snap-05e53541cc1373e1d",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0a095eb5f42450548",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-09117a089146d67f4",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-080c5a910bddcb361",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0176cb0cc327ccca2",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-08236b1838a89a816",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-08b32904c59aa3b3d",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    },
+    {
+      "snapshot_id": "snap-0d179812abfb1f550",
+      "size_gb": 20,
+      "monthly_cost": 1.0
+    }
+  ],
+  "total_monthly_savings": 119.0,
+  "summary": {
+    "stopped_instances_count": 2,
+    "unattached_volumes_count": 0,
+    "unused_eips_count": 0,
+    "underutilized_instances_count": 1,
+    "orphaned_snapshots_count": 54
+  }
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "question": "What are my current month costs?",
+    "category": "General Cost Questions",
+    "agent": "general",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.1453540325164795,
+    "has_data": true,
+    "response_length": 404
+  },
+  {
+    "question": "Show me top spending services",
+    "category": "General Cost Questions",
+    "agent": "general",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.12824344635009766,
+    "has_data": true,
+    "response_length": 404
+  },
+  {
+    "question": "What's my daily average spend?",
+    "category": "General Cost Questions",
+    "agent": "general",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.10888910293579102,
+    "has_data": true,
+    "response_length": 404
+  },
+  {
+    "question": "Predict next month's costs",
+    "category": "Prediction & Forecasting",
+    "agent": "prediction",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8544962406158447,
+    "has_data": true,
+    "response_length": 492
+  },
+  {
+    "question": "Forecast my annual budget",
+    "category": "Prediction & Forecasting",
+    "agent": "prediction",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.4605858325958252,
+    "has_data": true,
+    "response_length": 492
+  },
+  {
+    "question": "Will I exceed my budget this month?",
+    "category": "Prediction & Forecasting",
+    "agent": "prediction",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.41591906547546387,
+    "has_data": true,
+    "response_length": 492
+  },
+  {
+    "question": "Find idle resources",
+    "category": "Resource Optimization",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 1.127842664718628,
+    "has_data": true,
+    "response_length": 475
+  },
+  {
+    "question": "Show me unused EBS volumes",
+    "category": "Resource Optimization",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8209578990936279,
+    "has_data": true,
+    "response_length": 475
+  },
+  {
+    "question": "Which EC2 instances are underutilized?",
+    "category": "Resource Optimization",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8931522369384766,
+    "has_data": true,
+    "response_length": 475
+  },
+  {
+    "question": "Recommend savings plans",
+    "category": "Savings Plans",
+    "agent": "savings",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.17660212516784668,
+    "has_data": true,
+    "response_length": 427
+  },
+  {
+    "question": "What's my current commitment coverage?",
+    "category": "Savings Plans",
+    "agent": "savings",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.1662611961364746,
+    "has_data": true,
+    "response_length": 427
+  },
+  {
+    "question": "How much can I save with reserved instances?",
+    "category": "Savings Plans",
+    "agent": "savings",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.1365830898284912,
+    "has_data": true,
+    "response_length": 427
+  },
+  {
+    "question": "Check for cost anomalies",
+    "category": "Anomaly Detection",
+    "agent": "general",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.1392991542816162,
+    "has_data": true,
+    "response_length": 404
+  },
+  {
+    "question": "Alert me about unusual spending",
+    "category": "Anomaly Detection",
+    "agent": "anomaly",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.15833091735839844,
+    "has_data": true,
+    "response_length": 476
+  },
+  {
+    "question": "What caused yesterday's cost spike?",
+    "category": "Anomaly Detection",
+    "agent": "anomaly",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.14725875854492188,
+    "has_data": true,
+    "response_length": 476
+  },
+  {
+    "question": "Analyze my costs and recommend optimizations",
+    "category": "Multi-Agent Queries",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8554255962371826,
+    "has_data": true,
+    "response_length": 475
+  },
+  {
+    "question": "Help me reduce my AWS bill by 20%",
+    "category": "Multi-Agent Queries",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8384890556335449,
+    "has_data": true,
+    "response_length": 475
+  },
+  {
+    "question": "Create a cost optimization plan",
+    "category": "Multi-Agent Queries",
+    "agent": "optimizer",
+    "passed": true,
+    "issues": [],
+    "response_time": 0.8734097480773926,
+    "has_data": true,
+    "response_length": 475
+  }
+]

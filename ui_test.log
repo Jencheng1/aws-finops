@@ -1,0 +1,74 @@
+test_01_main_page_elements (__main__.TestStreamlitUIFixed)
+Test main page loads correctly ... ok
+test_02_tabs_navigation (__main__.TestStreamlitUIFixed)
+Test tab navigation ... ok
+test_03_cost_data_display (__main__.TestStreamlitUIFixed)
+Test cost data is displayed ... ok
+test_04_interactive_elements (__main__.TestStreamlitUIFixed)
+Test buttons and interactive elements ... ok
+test_05_sidebar_presence (__main__.TestStreamlitUIFixed)
+Test sidebar functionality ... ok
+test_06_data_displays (__main__.TestStreamlitUIFixed)
+Test data tables and displays ... ok
+test_07_page_responsiveness (__main__.TestStreamlitUIFixed)
+Test page responsiveness ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 51.017s
+
+OK
+
+============================================================
+STREAMLIT UI TEST - FIXED VERSION
+============================================================
+Test Started: 2025-09-30 23:40:40
+
+=== Setting up Selenium WebDriver ===
+Trying port 8503...
+Connecting to Streamlit app on port 8503...
+✓ Connected to Streamlit on port 8503
+
+=== Test 1: Main Page Elements ===
+⚠ Streamlit app container not found
+✓ Found 11 headers
+  First header: 🔧 Platform Controls...
+✓ Found 8 metric containers
+✓ Found 11 columns
+✓ Found 20 vertical blocks
+
+=== Test 2: Tab Navigation ===
+✓ Found 6 tabs using selector: [data-baseweb='tab']
+✓ Clicked tab 1: 📊 Cost Analytics
+✓ Clicked tab 2: 🤖 Budget Prediction
+✓ Clicked tab 3: 🔍 Resource Optimization
+
+=== Test 3: Cost Data Display ===
+✓ Found 1 Plotly charts
+
+=== Test 4: Interactive Elements ===
+✓ Found 14 buttons
+  - Action button: Scan for Idle Resources
+✓ Found 3 sliders
+✓ Found 2 text input fields
+
+=== Test 5: Sidebar Check ===
+✓ Sidebar found
+  - Sidebar buttons: 2
+  - Sidebar sliders: 2
+  - Sidebar inputs: 4
+
+=== Test 6: Data Display Elements ===
+✓ No error messages found
+
+=== Test 7: Page Responsiveness ===
+⚠ No refresh button found to test
+✓ Page loaded successfully and is responsive
+✓ Browser closed
+
+============================================================
+TEST SUMMARY
+============================================================
+Total Tests: 7
+Passed: 7
+Failed: 0
+Errors: 0

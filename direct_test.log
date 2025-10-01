@@ -1,0 +1,45 @@
+ERROR
+
+======================================================================
+ERROR: setUpClass (__main__.TestAllFeaturesDirect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_all_features_direct.py", line 46, in setUpClass
+    cls.start_streamlit()
+  File "test_all_features_direct.py", line 57, in start_streamlit
+    stderr=subprocess.PIPE
+  File "/usr/lib64/python3.7/subprocess.py", line 800, in __init__
+    restore_signals, start_new_session)
+  File "/usr/lib64/python3.7/subprocess.py", line 1551, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: 'streamlit'
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.338s
+
+FAILED (errors=1)
+
+============================================================
+COMPREHENSIVE DIRECT API TEST SUITE
+Testing all features without UI dependencies
+============================================================
+Test Started: 2025-09-30 23:40:39
+============================================================
+
+=== Direct Feature Testing (No UI Required) ===
+✓ Connected to AWS Account: 637423485585
+Starting Streamlit server...
+
+============================================================
+TEST SUMMARY
+============================================================
+Total Tests: 0
+Passed: -1
+Failed: 0
+Errors: 1
+Traceback (most recent call last):
+  File "test_all_features_direct.py", line 495, in <module>
+    success = run_all_direct_tests()
+  File "test_all_features_direct.py", line 476, in run_all_direct_tests
+    print(f"Success Rate: {((result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun * 100):.1f}%")
+ZeroDivisionError: division by zero

@@ -1,0 +1,8 @@
+Instance ID,Name,Type,State,Region,AZ,Platform,Launch Time,CPU Avg %,CPU Max %,Network In (MB),Network Out (MB),Storage (GB),7d Cost,Monthly Cost,Annual Cost,Optimization
+i-013415de88e94582b,sre-demo-new,t3.large,stopped,us-east-1,us-east-1a,Linux,2025-09-17 11:51,0.0,0.0,0.0,0.0,8,11.67,50,600,Stop to save
+i-0c4774f96f67467cd,JMS,t3.large,stopped,us-east-1,us-east-1a,Linux,2025-09-13 10:48,0.0,0.0,0.0,0.0,8,11.67,50,600,Stop to save
+i-02bef13982a179478,SRE-DEMO,t3.large,running,us-east-1,us-east-1a,Linux,2025-09-27 10:13,10.1,100.0,157.6,38.0,8,11.67,50,600,OK
+i-05ad220ef77a67ca7,sre-boston,t3.large,running,us-east-1,us-east-1a,Linux,2025-09-27 10:13,26.7,100.0,4395.3,5854.2,8,11.67,50,600,OK
+i-019b3a05e5729a273,finops-sre,t3.large,running,us-east-1,us-east-1a,Linux,2025-09-29 10:06,4.5,26.4,344.2,435.3,8,11.67,50,600,Underutilized
+i-0c6548578318d1df3,SRE-BOSTON-ONE-PAGE-DEMO,t3.large,running,us-east-1,us-east-1a,Linux,2025-09-30 00:52,45.5,93.6,351.5,609.8,8,11.67,50,600,OK
+i-00cf9a36e8a28cbfa,finops-ai-demo2,t3.large,running,us-east-1,us-east-1a,Linux,2025-09-30 22:14,13.0,55.3,577.3,677.8,8,11.67,50,600,OK
