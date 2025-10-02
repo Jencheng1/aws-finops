@@ -1,7 +1,7 @@
 # FinOps Platform Context for Claude
 
 ## Project Overview
-This is an AI-powered FinOps platform that provides cost optimization, budget prediction, and resource management for AWS environments.
+This is an AI-powered FinOps platform that provides cost optimization, budget prediction, resource management, comprehensive reporting, and tag compliance for AWS environments.
 
 ## Active Services
 
@@ -16,6 +16,8 @@ This is an AI-powered FinOps platform that provides cost optimization, budget pr
   - Human-in-the-loop feedback system
   - Cost anomaly detection
   - Full Analysis button (fixed and working)
+  - **NEW: Report Generator tab** - Generate PDF/Excel/JSON reports
+  - **NEW: Tag Compliance tab** - Monitor and enforce resource tagging
 
 ### 2. Apptio Reconciliation Dashboard (Port 8504)
 - **File**: `apptio_mcp_reconciliation.py`
@@ -49,6 +51,11 @@ cd /home/ec2-user/finops/aws-finops
 - `start_finops_after_reboot.sh` - Quick start script
 - `setup_systemd_services.sh` - Auto-start setup
 - `finops_nginx.conf` - Nginx reverse proxy configuration
+- **NEW: `finops_report_generator.py`** - Report generation module
+- **NEW: `tag_compliance_agent.py`** - Tag compliance AI agent
+- **NEW: `lambda_tag_compliance.py`** - Lambda function for tag enforcement
+- **NEW: `test_finops_features.py`** - Test suite for new features
+- **NEW: `rollback_finops_updates.sh`** - Emergency rollback script
 
 ## AWS Services Used
 - AWS Cost Explorer API
@@ -69,6 +76,25 @@ cd /home/ec2-user/finops/aws-finops
 - Apptio dashboard accessible at http://your-ec2-ip/apptio
 - Configuration file: `/etc/nginx/conf.d/finops.conf`
 - Nginx handles URL rewriting for Apptio path
+
+## Recent Updates (2025-10-02)
+- **NEW: FinOps Report Generator**
+  - Comprehensive PDF/Excel/JSON reports
+  - Cost analysis, trends, and optimization recommendations
+  - Tag compliance reporting
+  - Executive and technical report templates
+- **NEW: Tag Compliance System**
+  - AI-powered tag compliance agent
+  - Automatic scanning and remediation suggestions
+  - Integration with multi-agent chatbot
+  - Lambda function for automated enforcement
+  - Compliance trends and analytics
+- **Enhanced Multi-Agent System**
+  - Added 6th AI agent: Tag Compliance Agent
+  - Improved chatbot routing for tag-related queries
+- **Test Suite**
+  - Comprehensive test cases for all new features
+  - Rollback mechanism for quick recovery
 
 ## Recent Fixes
 - Fixed Full Analysis button in finops_intelligent_dashboard.py

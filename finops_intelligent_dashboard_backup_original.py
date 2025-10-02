@@ -433,15 +433,21 @@ if 'run_full_analysis' in st.session_state and st.session_state.run_full_analysi
         # Reset the flag
         st.session_state.run_full_analysis = False
 
-# Main content area - All tabs in one line
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+# Main content area - Two rows of tabs for better visibility
+st.markdown("### 📊 Main Features")
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📊 Cost Intelligence",
     "💬 Multi-Agent Chat",
     "🏢 Business Context (Apptio)",
     "🔍 Resource Optimization",
     "💎 Savings Plans",
     "🔮 Budget Prediction",
-    "📈 Executive Dashboard",
+    "📈 Executive Dashboard"
+])
+
+st.markdown("---")
+st.markdown("### 🆕 New Features")
+tab8, tab9 = st.tabs([
     "📋 Report Generator",
     "🏷️ Tag Compliance"
 ])

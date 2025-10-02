@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AWS FinOps Intelligent Dashboard with Complete Feature Set
-Includes: Cost Intelligence, Multi-Agent Chatbot, Apptio MCP Integration, Report Generation, Tag Compliance
+Includes: Cost Intelligence, Multi-Agent Chatbot, Apptio MCP Integration
 """
 
 import streamlit as st
@@ -16,10 +16,6 @@ import time
 import uuid
 from typing import Dict, List, Tuple
 from multi_agent_processor import MultiAgentProcessor
-from finops_report_generator import FinOpsReportGenerator
-from tag_compliance_agent import TagComplianceAgent
-import base64
-import io
 
 # Page configuration
 st.set_page_config(
@@ -114,12 +110,6 @@ AGENTS = {
         'icon': '🚨',
         'color': '#9467bd',
         'capabilities': ['Cost spike detection', 'Usage anomalies', 'Alert configuration']
-    },
-    'compliance': {
-        'name': 'Tag Compliance Agent',
-        'icon': '🏷️',
-        'color': '#8c564b',
-        'capabilities': ['Tag compliance scanning', 'Remediation suggestions', 'Policy enforcement']
     }
 }
 
@@ -234,8 +224,6 @@ def identify_active_agent(query: str) -> str:
         return 'savings'
     elif any(word in query_lower for word in ['anomaly', 'spike', 'unusual', 'alert']):
         return 'anomaly'
-    elif any(word in query_lower for word in ['tag', 'tagging', 'compliance', 'untagged', 'missing tags']):
-        return 'compliance'
     else:
         return 'general'
 
@@ -262,10 +250,6 @@ def process_with_agent(agent_type: str, query: str, context: Dict) -> Tuple[str,
         return agent_processor.process_savings_query(query, context)
     elif agent_type == 'anomaly':
         return agent_processor.process_anomaly_query(query, context)
-    elif agent_type == 'compliance':
-        # Use the tag compliance agent directly
-        tag_agent = TagComplianceAgent()
-        return tag_agent.process_query(query, context)
     else:
         return agent_processor.process_general_query(query, context)
 
@@ -433,17 +417,15 @@ if 'run_full_analysis' in st.session_state and st.session_state.run_full_analysi
         # Reset the flag
         st.session_state.run_full_analysis = False
 
-# Main content area - All tabs in one line
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+# Main content area
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📊 Cost Intelligence",
     "💬 Multi-Agent Chat",
     "🏢 Business Context (Apptio)",
     "🔍 Resource Optimization",
     "💎 Savings Plans",
     "🔮 Budget Prediction",
-    "📈 Executive Dashboard",
-    "📋 Report Generator",
-    "🏷️ Tag Compliance"
+    "📈 Executive Dashboard"
 ])
 
 # Initialize global variables for cross-tab access
@@ -938,11 +920,6 @@ with tab2:
             - "Analyze my costs and recommend optimizations"
             - "Help me reduce my AWS bill by 20%"
             - "Create a cost optimization plan"
-            
-            **Tag Compliance:**
-            - "Check tag compliance"
-            - "Find untagged resources"
-            - "Show tag compliance trends"
             """)
     
     # Display agent capabilities
@@ -1707,321 +1684,12 @@ with tab7:
         fig_exec.update_layout(height=500)
         st.plotly_chart(fig_exec, use_container_width=True)
 
-# Tab 8: Report Generator
-with tab8:
-    st.header("📋 FinOps Report Generator")
-    
-    # Initialize report generator
-    @st.cache_resource
-    def get_report_generator():
-        return FinOpsReportGenerator(clients)
-    
-    report_generator = get_report_generator()
-    
-    # Report configuration
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        report_type = st.selectbox(
-            "Report Type",
-            ["Full Comprehensive Report", "Executive Summary", "Technical Report", "Compliance Report"],
-            help="Select the type of report to generate"
-        )
-    
-    with col2:
-        report_period = st.selectbox(
-            "Report Period",
-            ["Last 30 Days", "Last 7 Days", "Last 90 Days", "Current Month", "Custom Range"],
-            help="Select the time period for the report"
-        )
-    
-    with col3:
-        report_format = st.selectbox(
-            "Export Format",
-            ["PDF", "Excel", "JSON"],
-            help="Select the format for downloading the report"
-        )
-    
-    # Custom date range if selected
-    if report_period == "Custom Range":
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = st.date_input("Start Date", value=datetime.now().date() - timedelta(days=30))
-        with col2:
-            end_date = st.date_input("End Date", value=datetime.now().date())
-    else:
-        # Calculate dates based on selection
-        end_date = datetime.now().date()
-        if report_period == "Last 7 Days":
-            start_date = end_date - timedelta(days=7)
-        elif report_period == "Last 30 Days":
-            start_date = end_date - timedelta(days=30)
-        elif report_period == "Last 90 Days":
-            start_date = end_date - timedelta(days=90)
-        elif report_period == "Current Month":
-            start_date = end_date.replace(day=1)
-    
-    # Report options
-    with st.expander("⚙️ Report Options", expanded=False):
-        col1, col2 = st.columns(2)
-        with col1:
-            include_charts = st.checkbox("Include Charts & Visualizations", value=True)
-            include_recommendations = st.checkbox("Include Optimization Recommendations", value=True)
-            include_tag_compliance = st.checkbox("Include Tag Compliance Analysis", value=True)
-        with col2:
-            include_cost_trends = st.checkbox("Include Cost Trends", value=True)
-            include_anomalies = st.checkbox("Include Cost Anomalies", value=True)
-            include_savings_analysis = st.checkbox("Include Savings Plan Analysis", value=True)
-    
-    # Generate report button
-    if st.button("🚀 Generate Report", type="primary", use_container_width=True):
-        with st.spinner(f"Generating {report_type}... This may take a few moments."):
-            try:
-                # Map report type to generator parameter
-                report_type_map = {
-                    "Full Comprehensive Report": "full",
-                    "Executive Summary": "executive",
-                    "Technical Report": "technical",
-                    "Compliance Report": "compliance"
-                }
-                
-                # Generate report
-                report_content = report_generator.generate_comprehensive_report(
-                    report_type=report_type_map[report_type],
-                    start_date=start_date,
-                    end_date=end_date,
-                    include_charts=include_charts,
-                    format=report_format.lower()
-                )
-                
-                # Success message
-                st.success(f"✅ {report_type} generated successfully!")
-                
-                # Report preview (for JSON)
-                if report_format == "JSON":
-                    with st.expander("📄 Report Preview", expanded=True):
-                        report_data = json.loads(report_content)
-                        
-                        # Show key metrics
-                        col1, col2, col3, col4 = st.columns(4)
-                        with col1:
-                            st.metric("Total Cost", f"${report_data['cost_analysis']['total_cost']:,.2f}")
-                        with col2:
-                            st.metric("Tag Compliance", f"{report_data['resource_tagging']['compliance_rate']:.1f}%")
-                        with col3:
-                            st.metric("Monthly Savings", f"${report_data['optimization_recommendations']['monthly_savings']:,.2f}")
-                        with col4:
-                            st.metric("Untagged Resources", report_data['resource_tagging']['untagged_resources'])
-                        
-                        # Show JSON content
-                        st.json(report_data)
-                
-                # Download button
-                if report_format == "PDF":
-                    b64 = base64.b64encode(report_content).decode()
-                    href = f'<a href="data:application/pdf;base64,{b64}" download="finops_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf">📥 Download PDF Report</a>'
-                    st.markdown(href, unsafe_allow_html=True)
-                    
-                elif report_format == "Excel":
-                    b64 = base64.b64encode(report_content).decode()
-                    href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="finops_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx">📥 Download Excel Report</a>'
-                    st.markdown(href, unsafe_allow_html=True)
-                    
-                else:  # JSON
-                    st.download_button(
-                        label="📥 Download JSON Report",
-                        data=report_content,
-                        file_name=f"finops_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                        mime="application/json"
-                    )
-                
-            except Exception as e:
-                st.error(f"Error generating report: {str(e)}")
-                with st.expander("Error Details"):
-                    st.write(f"**Error Type:** {type(e).__name__}")
-                    st.write(f"**Error Message:** {str(e)}")
-                    st.write("**Troubleshooting:**")
-                    st.write("- Check AWS credentials and permissions")
-                    st.write("- Ensure all required services are accessible")
-                    st.write("- Try a shorter date range or simpler report type")
-    
-    # Report templates and examples
-    with st.expander("📚 Report Templates & Examples"):
-        st.write("**Available Report Types:**")
-        st.write("• **Full Comprehensive Report**: Complete analysis including costs, compliance, optimization, and trends")
-        st.write("• **Executive Summary**: High-level overview suitable for management")
-        st.write("• **Technical Report**: Detailed technical analysis with resource-level details")
-        st.write("• **Compliance Report**: Focus on tag compliance and governance")
-        
-        st.write("\n**Report Sections Include:**")
-        st.write("• Cost Analysis & Breakdown")
-        st.write("• Resource Tagging Compliance")
-        st.write("• Optimization Recommendations")
-        st.write("• Savings Plan Analysis")
-        st.write("• Trend Analysis")
-        st.write("• Cost Anomalies")
-        st.write("• Top Services by Cost")
-        
-        st.write("\n**Use Cases:**")
-        st.write("• Monthly FinOps reviews")
-        st.write("• Budget planning meetings")
-        st.write("• Compliance audits")
-        st.write("• Cost optimization initiatives")
-
-# Tab 9: Tag Compliance
-with tab9:
-    st.header("🏷️ Resource Tag Compliance")
-    
-    # Initialize tag compliance agent
-    @st.cache_resource
-    def get_tag_compliance_agent():
-        return TagComplianceAgent()
-    
-    tag_agent = get_tag_compliance_agent()
-    
-    # Quick actions
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        if st.button("🔍 Scan Compliance", use_container_width=True):
-            with st.spinner("Scanning resources for tag compliance..."):
-                response, data = tag_agent.perform_compliance_scan()
-                st.session_state['compliance_scan_result'] = response
-                st.session_state['compliance_scan_data'] = data
-    
-    with col2:
-        if st.button("📋 Generate Report", use_container_width=True):
-            with st.spinner("Generating compliance report..."):
-                response, data = tag_agent.generate_compliance_report()
-                st.session_state['compliance_report'] = response
-                st.session_state['compliance_report_data'] = data
-    
-    with col3:
-        if st.button("🔧 Suggest Fixes", use_container_width=True):
-            with st.spinner("Analyzing and suggesting remediation..."):
-                response, data = tag_agent.suggest_remediation()
-                st.session_state['remediation_plan'] = response
-                st.session_state['remediation_data'] = data
-    
-    with col4:
-        if st.button("📈 Show Trends", use_container_width=True):
-            with st.spinner("Analyzing compliance trends..."):
-                response, data = tag_agent.analyze_compliance_trends()
-                st.session_state['compliance_trends'] = response
-                st.session_state['trends_data'] = data
-    
-    # Display results
-    if 'compliance_scan_result' in st.session_state:
-        with st.expander("🔍 Compliance Scan Results", expanded=True):
-            st.markdown(st.session_state['compliance_scan_result'])
-            
-            # Visualize compliance data if available
-            if 'compliance_scan_data' in st.session_state:
-                data = st.session_state['compliance_scan_data']
-                
-                if 'compliance_rate' in data:
-                    # Compliance gauge
-                    fig_gauge = go.Figure(go.Indicator(
-                        mode = "gauge+number+delta",
-                        value = data['compliance_rate'],
-                        title = {'text': "Overall Compliance Rate"},
-                        domain = {'x': [0, 1], 'y': [0, 1]},
-                        gauge = {
-                            'axis': {'range': [None, 100]},
-                            'bar': {'color': "darkgreen" if data['compliance_rate'] > 80 else "orange"},
-                            'steps': [
-                                {'range': [0, 60], 'color': "lightgray"},
-                                {'range': [60, 80], 'color': "gray"}
-                            ],
-                            'threshold': {
-                                'line': {'color': "red", 'width': 4},
-                                'thickness': 0.75,
-                                'value': 90
-                            }
-                        }
-                    ))
-                    fig_gauge.update_layout(height=300)
-                    st.plotly_chart(fig_gauge, use_container_width=True)
-    
-    if 'compliance_report' in st.session_state:
-        with st.expander("📋 Compliance Report", expanded=True):
-            st.markdown(st.session_state['compliance_report'])
-    
-    if 'remediation_plan' in st.session_state:
-        with st.expander("🔧 Remediation Plan", expanded=True):
-            st.markdown(st.session_state['remediation_plan'])
-            
-            # Auto-remediation button
-            if st.button("🤖 Apply Default Tags to All Resources", type="secondary"):
-                st.warning("⚠️ This will apply default tags to all non-compliant resources. Are you sure?")
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("✅ Yes, Apply Tags", type="primary"):
-                        with st.spinner("Applying tags..."):
-                            # This would invoke the Lambda function for remediation
-                            st.success("✅ Tags applied successfully to all non-compliant resources!")
-                with col2:
-                    if st.button("❌ Cancel"):
-                        st.info("Tag application cancelled.")
-    
-    if 'compliance_trends' in st.session_state:
-        with st.expander("📈 Compliance Trends", expanded=True):
-            st.markdown(st.session_state['compliance_trends'])
-            
-            # Visualize trends if data available
-            if 'trends_data' in st.session_state and 'compliance_rates' in st.session_state['trends_data']:
-                trends_data = st.session_state['trends_data']
-                
-                # Create trend chart
-                fig_trend = go.Figure()
-                fig_trend.add_trace(go.Scatter(
-                    x=trends_data['dates'],
-                    y=trends_data['compliance_rates'],
-                    mode='lines+markers',
-                    name='Compliance Rate',
-                    line=dict(color='blue', width=2)
-                ))
-                
-                # Add target line
-                fig_trend.add_hline(y=90, line_dash="dash", line_color="green", 
-                                  annotation_text="Target: 90%")
-                
-                fig_trend.update_layout(
-                    title="Tag Compliance Trend",
-                    xaxis_title="Date",
-                    yaxis_title="Compliance Rate (%)",
-                    height=400
-                )
-                st.plotly_chart(fig_trend, use_container_width=True)
-    
-    # Tag Policy Configuration
-    st.subheader("⚙️ Tag Policy Configuration")
-    
-    with st.expander("Configure Required Tags"):
-        st.write("**Current Required Tags:**")
-        required_tags = ['Environment', 'Owner', 'CostCenter', 'Project']
-        for tag in required_tags:
-            st.write(f"• {tag}")
-        
-        st.write("\n**Add Custom Required Tag:**")
-        new_tag = st.text_input("Tag Name")
-        if st.button("Add Tag"):
-            st.success(f"Tag '{new_tag}' added to requirements (in next version)")
-    
-    # Resource Search
-    st.subheader("🔍 Resource Search")
-    
-    search_query = st.text_input("Search for resources by ID, type, or tag value")
-    if search_query:
-        with st.spinner(f"Searching for '{search_query}'..."):
-            # This would search through resources
-            st.info("Resource search results will appear here")
-
 # Footer with system status
 st.markdown("---")
 col1, col2, col3 = st.columns(3)
 with col1:
     st.caption(f"🟢 System Status: All Services Operational | Account: {account_id}")
 with col2:
-    st.caption("🔗 Apptio MCP: Connected | 🤖 AI Agents: 6 Active")
+    st.caption("🔗 Apptio MCP: Connected | 🤖 AI Agents: 5 Active")
 with col3:
     st.caption(f"Last Update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

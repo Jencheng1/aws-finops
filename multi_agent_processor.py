@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from typing import Dict, Tuple, List
+from tag_compliance_agent import TagComplianceAgent
 
 class MultiAgentProcessor:
     def __init__(self):
@@ -18,6 +19,9 @@ class MultiAgentProcessor:
         self.lambda_client = boto3.client('lambda')
         self.dynamodb = boto3.resource('dynamodb')
         self.support = boto3.client('support', region_name='us-east-1')
+        
+        # Initialize specialized agents
+        self.tag_compliance_agent = TagComplianceAgent()
         
     def process_prediction_query(self, query: str, context: Dict) -> Tuple[str, Dict]:
         """Budget Prediction Agent - Real ML predictions"""
@@ -514,3 +518,85 @@ What would you like to explore?"""
             return response_text, {"total_cost": total_cost, "top_services": top_services}
         else:
             raise Exception("No cost data available for current month")
+            
+    def process_general_query(self, query: str, context: Dict) -> Tuple[str, Dict]:
+        """General FinOps query processor with tag compliance routing"""
+        # Check for tag compliance queries first
+        query_lower = query.lower()
+        if any(word in query_lower for word in ['tag', 'compliance', 'untagged', 'missing tags']):
+            return self.tag_compliance_agent.process_query(query, context)
+        
+        # Otherwise process as regular cost query
+        return self._process_cost_query(query, context)
+    
+    def _process_cost_query(self, query: str, context: Dict) -> Tuple[str, Dict]:
+        """Process regular cost queries"""
+        # This is the original general query logic
+        try:
+            # Get current month costs
+            today = datetime.now()
+            start_date = today.replace(day=1)
+            end_date = today
+            
+            response = self.ce.get_cost_and_usage(
+                TimePeriod={
+                    'Start': start_date.strftime('%Y-%m-%d'),
+                    'End': end_date.strftime('%Y-%m-%d')
+                },
+                Granularity='DAILY',
+                Metrics=['UnblendedCost'],
+                GroupBy=[{'Type': 'DIMENSION', 'Key': 'SERVICE'}]
+            )
+            
+            # Aggregate costs by service across all days
+            service_costs = {}
+            total_cost = 0.0
+            
+            for result in response['ResultsByTime']:
+                for group in result['Groups']:
+                    service = group['Keys'][0]
+                    cost = float(group['Metrics']['UnblendedCost']['Amount'])
+                    
+                    if service not in service_costs:
+                        service_costs[service] = 0.0
+                    service_costs[service] += cost
+                    total_cost += cost
+            
+            # Get top 5 services
+            services = list(service_costs.items())
+            services.sort(key=lambda x: x[1], reverse=True)
+            top_services = services[:5]
+            
+            days_elapsed = (end_date - start_date).days
+            daily_avg = total_cost / max(1, days_elapsed)
+            projected_monthly = daily_avg * 30
+            
+            response_text = f"""💰 **AWS Cost Overview**
+
+Here's your current month summary:
+
+**Month-to-Date Spend**: ${total_cost:,.2f}
+**Days Elapsed**: {days_elapsed}
+**Daily Average**: ${daily_avg:.2f}
+**Projected Monthly**: ${projected_monthly:,.2f}
+
+**Top 5 Services by Cost**:"""
+            
+            for service, cost in top_services:
+                pct = (cost / total_cost * 100) if total_cost > 0 else 0
+                response_text += f"\n• {service}: ${cost:.2f} ({pct:.1f}%)"
+            
+            response_text += """
+
+**Available Actions**:
+- Ask me to "predict next month's costs"
+- Say "find idle resources" to save money
+- Request "savings plan recommendations"
+- Check for "cost anomalies"
+
+What would you like to explore?"""
+            
+            return response_text, {"total_cost": total_cost, "top_services": top_services}
+        
+        except Exception as e:
+            return f"I encountered an error while fetching cost data: {str(e)}", {}
