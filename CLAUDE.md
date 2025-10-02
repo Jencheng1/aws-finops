@@ -60,9 +60,12 @@ cd /home/ec2-user/finops/aws-finops
 ## AWS Services Used
 - AWS Cost Explorer API
 - EC2 API
-- DynamoDB (for feedback storage)
+- DynamoDB (for feedback storage and tag compliance history)
 - CloudWatch
 - IAM
+- Lambda (tag-compliance-checker function)
+- Resource Groups Tagging API
+- S3, RDS (for tag compliance scanning)
 
 ## Known Working Configuration
 - FinOps Dashboard: `finops_intelligent_dashboard.py` on port 8502
@@ -96,10 +99,15 @@ cd /home/ec2-user/finops/aws-finops
   - Comprehensive test cases for all new features
   - Rollback mechanism for quick recovery
 
-## Recent Fixes
+## Recent Fixes (2025-10-02)
 - Fixed Full Analysis button in finops_intelligent_dashboard.py
 - Fixed Apptio nginx routing with URL rewriting
 - Created backup: finops_intelligent_dashboard.py.backup
+- **FIXED: Lambda function error** - Deployed tag-compliance-checker Lambda
+  - Function ARN: `arn:aws:lambda:us-east-1:637423485585:function:tag-compliance-checker`
+  - DynamoDB table: `tag-compliance-history`
+  - IAM role: `tag-compliance-lambda-role`
+- **Backup created**: `backups/20251002_035036/` containing all main Streamlit apps
 
 ## Troubleshooting
 - If services fail to start, check Python version compatibility
@@ -107,3 +115,17 @@ cd /home/ec2-user/finops/aws-finops
 - Check logs in the project directory (*.log files)
 - Port 8501 may conflict with Docker, use 8502 instead
 - For nginx issues: `sudo nginx -t` and `sudo tail -f /var/log/nginx/error.log`
+- **Tag Compliance Lambda errors**: Check CloudWatch logs for `tag-compliance-checker`
+- **Report generation errors**: Ensure Lambda has proper permissions for all resource types
+
+## Tag Compliance System Details
+- **Lambda Function**: `tag-compliance-checker` 
+  - Actions: scan, report, remediate, get_resource
+  - Required tags: Environment, Owner, CostCenter, Project
+  - Scans EC2, RDS, S3, and all resources via Resource Groups Tagging API
+- **Dashboard Integration**: Tab 9 in main FinOps dashboard
+- **Compliance Rate**: Currently 0.3% (371/372 resources non-compliant)
+- **Test Scripts**:
+  - `test_tag_compliance_integration.py` - Integration tests
+  - `test_use_cases.py` - Real-world scenario tests
+  - `deploy_lambda_compliance.py` - Lambda deployment script
