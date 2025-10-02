@@ -433,42 +433,25 @@ if 'run_full_analysis' in st.session_state and st.session_state.run_full_analysi
         # Reset the flag
         st.session_state.run_full_analysis = False
 
-# Sidebar navigation for better tab visibility
-tab_options = {
-    "📊 Cost Intelligence": "cost_intelligence",
-    "💬 Multi-Agent Chat": "multi_agent_chat",
-    "🏢 Business Context (Apptio)": "business_context",
-    "🔍 Resource Optimization": "resource_optimization",
-    "💎 Savings Plans": "savings_plans",
-    "🔮 Budget Prediction": "budget_prediction",
-    "📈 Executive Dashboard": "executive_dashboard",
-    "📋 Report Generator": "report_generator",
-    "🏷️ Tag Compliance": "tag_compliance"
-}
-
-# Sidebar navigation
-with st.sidebar:
-    st.title("Navigation")
-    selected_tab = st.radio(
-        "Select Module:",
-        list(tab_options.keys()),
-        index=0,
-        key="navigation_radio"
-    )
-    
-    st.markdown("---")
-    st.caption("💡 All 9 modules are now easily accessible")
-    st.caption("🔍 No zooming required!")
-
-# Get the selected tab key
-selected_key = tab_options[selected_tab]
+# Main content area - All tabs in one line
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+    "📊 Cost Intelligence",
+    "💬 Multi-Agent Chat",
+    "🏢 Business Context (Apptio)",
+    "🔍 Resource Optimization",
+    "💎 Savings Plans",
+    "🔮 Budget Prediction",
+    "📈 Executive Dashboard",
+    "📋 Report Generator",
+    "🏷️ Tag Compliance"
+])
 
 # Initialize global variables for cross-tab access
 daily_costs = []
 service_costs = {}
 
 # Tab 1: Cost Intelligence
-if selected_key == "cost_intelligence":
+with tab1:
     st.header("📊 Cost Intelligence Dashboard")
     
     # Fetch cost data
@@ -906,7 +889,7 @@ if selected_key == "cost_intelligence":
         st.error(f"Error fetching cost data: {str(e)}")
 
 # Tab 2: Multi-Agent Chat
-if selected_key == "multi_agent_chat":
+with tab2:
     st.header("💬 Multi-Agent Cost Assistant")
     
     # Agent selector
@@ -1031,7 +1014,7 @@ if selected_key == "multi_agent_chat":
         st.experimental_rerun()
 
 # Tab 3: Business Context (Apptio)
-if selected_key == "business_context":
+with tab3:
     st.header("🏢 Business Context Analytics (Apptio MCP)")
     
     st.info("🔗 **Apptio MCP Integration** transforms technical AWS costs into business-relevant insights")
@@ -1117,7 +1100,7 @@ if selected_key == "business_context":
         st.caption("Once cost data is loaded, business context analytics will be available here.")
 
 # Tab 4: Resource Optimization
-if selected_key == "resource_optimization":
+with tab4:
     st.header("🔍 Resource Optimization Center")
     
     col1, col2 = st.columns([2, 1])
@@ -1204,7 +1187,7 @@ if selected_key == "resource_optimization":
         st.info("💡 **Tip**: Run regular scans to identify waste")
 
 # Tab 5: Savings Plans
-if selected_key == "savings_plans":
+with tab5:
     st.header("💎 Savings Plans Optimizer")
     
     if st.button("📊 Analyze Savings Opportunities"):
@@ -1262,7 +1245,7 @@ if selected_key == "savings_plans":
                 st.error(f"Error getting recommendations: {str(e)[:200]}")
 
 # Tab 6: Budget Prediction
-if selected_key == "budget_prediction":
+with tab6:
     st.header("🔮 Budget Prediction & Forecasting")
     
     # Prediction parameters
@@ -1612,7 +1595,7 @@ if selected_key == "budget_prediction":
                     st.write("\n**Total Starter Budget**: $500/month")
 
 # Tab 7: Executive Dashboard
-if selected_key == "executive_dashboard":
+with tab7:
     st.header("📈 Executive Dashboard")
     
     # KPIs
@@ -1725,7 +1708,7 @@ if selected_key == "executive_dashboard":
         st.plotly_chart(fig_exec, use_container_width=True)
 
 # Tab 8: Report Generator
-if selected_key == "report_generator":
+with tab8:
     st.header("📋 FinOps Report Generator")
     
     # Initialize report generator
@@ -1886,7 +1869,7 @@ if selected_key == "report_generator":
         st.write("• Cost optimization initiatives")
 
 # Tab 9: Tag Compliance
-if selected_key == "tag_compliance":
+with tab9:
     st.header("🏷️ Resource Tag Compliance")
     
     # Initialize tag compliance agent

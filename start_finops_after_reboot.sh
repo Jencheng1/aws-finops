@@ -97,6 +97,15 @@ echo "Service Status:"
 echo "=================================="
 ps aux | grep -E "streamlit|mcp" | grep -v grep | awk '{print "✅", $11, $12, $13}'
 
+# Check Lambda function
+echo ""
+echo "4. Checking Tag Compliance Lambda..."
+if aws lambda get-function --function-name tag-compliance-checker >/dev/null 2>&1; then
+    echo "✅ Tag Compliance Lambda is deployed"
+else
+    echo "⚠️  Tag Compliance Lambda not found. Run: python3 deploy_lambda_compliance.py"
+fi
+
 echo ""
 echo "=================================="
 echo "Access URLs:"

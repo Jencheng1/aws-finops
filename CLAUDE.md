@@ -48,12 +48,15 @@ cd /home/ec2-user/finops/aws-finops
 
 ## Important Files
 - `STARTUP_GUIDE.md` - Detailed startup instructions
-- `start_finops_after_reboot.sh` - Quick start script
+- **`EC2_RESTART_PROCEDURE.md`** - Complete restart guide after EC2 reboot
+- `start_finops_after_reboot.sh` - Quick start script (updated with Lambda check)
 - `setup_systemd_services.sh` - Auto-start setup
 - `finops_nginx.conf` - Nginx reverse proxy configuration
 - **NEW: `finops_report_generator.py`** - Report generation module
 - **NEW: `tag_compliance_agent.py`** - Tag compliance AI agent
 - **NEW: `lambda_tag_compliance.py`** - Lambda function for tag enforcement
+- **NEW: `deploy_lambda_compliance.py`** - Lambda deployment script
+- **NEW: `test_use_cases.py`** - Real-world scenario tests
 - **NEW: `test_finops_features.py`** - Test suite for new features
 - **NEW: `rollback_finops_updates.sh`** - Emergency rollback script
 
@@ -83,9 +86,12 @@ cd /home/ec2-user/finops/aws-finops
 ## Recent Updates (2025-10-02)
 - **NEW: FinOps Report Generator**
   - Comprehensive PDF/Excel/JSON reports
+  - **ENHANCED: AI-Powered Executive Summary** - Now includes comprehensive AI insights as first section
   - Cost analysis, trends, and optimization recommendations
   - Tag compliance reporting
   - Executive and technical report templates
+  - Key findings, risk assessment, and strategic recommendations
+  - Predicted monthly savings calculations
 - **NEW: Tag Compliance System**
   - AI-powered tag compliance agent
   - Automatic scanning and remediation suggestions
@@ -98,6 +104,11 @@ cd /home/ec2-user/finops/aws-finops
 - **Test Suite**
   - Comprehensive test cases for all new features
   - Rollback mechanism for quick recovery
+  - Full integration tests for report generator enhancements
+- **Bug Fixes**
+  - Fixed MultiAgentProcessor initialization
+  - Added missing get_trusted_advisor_cost_data method
+  - Fixed tag compliance tuple return handling
 
 ## Recent Fixes (2025-10-02)
 - Fixed Full Analysis button in finops_intelligent_dashboard.py
